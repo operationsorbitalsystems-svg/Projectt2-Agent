@@ -1,0 +1,1260 @@
+{
+  "metadata": {
+    "source_pdf": "/home/soham/Documents/orbtl/Hypro/COA.pdf",
+    "parsed_at": "2026-02-26T19:13:15.643517",
+    "total_pages": 12,
+    "total_groups": 125,
+    "total_ledgers": 495,
+    "levels_discovered": 6
+  },
+  "hierarchy": {
+    "Assets": {
+      "Cash and Banks": {
+        "Balances with banks to the extent held as margin money or security": {
+          "Fixed Deposit For BG": [],
+          "Fixed Deposit For LC": [],
+          "Fixed Deposits": []
+        }
+      },
+      "Current Assets": {
+        "Bank Accounts": {
+          "HDFC Bank A/c No. 50200021020747": [],
+          "HDFC Bank Credit Card No. 4718 6501 0001 1755": [],
+          "HDFC Bank EURO EEFC 50200026932447": [],
+          "ICICI Bank Credit Card-Dinesh M-4102 0203 3569 9002": [],
+          "IDBI C/A No. 0007102000031426": [],
+          "Multicurrency Forex Card": [],
+          "Sberbank A/c. No. 45000356100000043700": [],
+          "Yes Bank A/c. No. 000884100001301": [],
+          "Yes Bank Credit Card-Anurag Ayade-5532 0440 1000 4871": [],
+          "Yes Bank EEFC EUR A/c 000882300000204": [],
+          "Yes Bank Trustees Hypro Engineers Private Limited EGGCAS ? 095188700000102": [],
+          "Yes Bank USD EEFC 000880600000312": []
+        },
+        "Cash-in-Hand": {
+          "Cash": [],
+          "Cash in hand - Domestic Currecny": [],
+          "Cash in hand - International Currency": []
+        },
+        "Deposits (Asset)": [],
+        "Loans & Advances (Asset)": [],
+        "Other Current Assets": {
+          "Prepaid Expenses": {
+            "Prepaid Expenses": []
+          }
+        },
+        "Short Term Loans and Advances": {
+          "Advances given to Employee": {
+            "Advance to Ajinkya Ramdas Barve": [],
+            "Advance to Akshay Shinde": [],
+            "Advance to Amolratna Jadhav": [],
+            "Advance to Anurag Ayade": [],
+            "Advance to Ashwini Patil": [],
+            "Advance to Avinash Ahire": [],
+            "Advance to Bipin Ambadkar": [],
+            "Advance to Dinesh Marne": [],
+            "Advance to Hemant Hadap": [],
+            "Advance to Himmat Sutar": [],
+            "Advance to Kanchan Wanarase": [],
+            "Advance to Ketan Edhate": [],
+            "Advance to Krishna Bhuvad": [],
+            "Advance to Kuldeep Varma": [],
+            "Advance to Manodip Patil": [],
+            "Advance to Manoj Kumar Dehury": [],
+            "Advance to Mohd Azhar Hussain": [],
+            "Advance to Pabitra Bhagat": [],
+            "Advance to Prashant Dhadve": [],
+            "Advance to Rajesh Salunke": [],
+            "Advance to Sagar Gadade": [],
+            "Advance to Sandesh Patil": [],
+            "Advance to Sanket Sable": [],
+            "Advance to Santosh Joshi": [],
+            "Advance to Suraj Gaikwad": [],
+            "Advance to Swapnil Somnath Pachbhai": [],
+            "Advance to Vikram Bhandwale": [],
+            "Advance to Yogesh Patil": [],
+            "Advance to Zain Shaikh": [],
+            "Ashwini Patil Yes bank Credit Card No. 4913": []
+          },
+          "Balances with Govt Authorities": {
+            "Advance Tax AY 17-18": [],
+            "Advance Tax AY 18-19": [],
+            "Advance Tax AY 19-20": [],
+            "Advance Tax AY 20-21": [],
+            "Advance Tax AY 21-22": [],
+            "Advance Tax AY 22-23": [],
+            "Advance Tax AY 23-24": [],
+            "Advance Tax AY 24-25": [],
+            "Advance Tax AY 25-26": [],
+            "Advance Tax AY 26-27": [],
+            "CGST ON RCM - Receivable": [],
+            "GST Cash Ledger Balance": [],
+            "GST Refund Receivable": [],
+            "IGST on Import": [],
+            "IGST ON RCM - Receivable": [],
+            "Ineligible ITC": [],
+            "Input CGST Pipeline A/C": [],
+            "Input Credit Balance": [],
+            "Input Credit CGST": [],
+            "Input Credit IGST": [],
+            "Input Credit SGST": [],
+            "Input Credit UTGST": [],
+            "Input GST Balance": [],
+            "Input IGST Pipeline A/C": [],
+            "Input SGST Pipeline A/C": [],
+            "Refund receivable for AY 2018-19": [],
+            "Refund receivable for AY 2019-20": [],
+            "Refund receivable for AY 2020-21": [],
+            "Refund receivable for AY 2021-22": [],
+            "Refund receivable for AY 2022-23": [],
+            "Refund receivable for AY 2024-25": [],
+            "Self Assessment Tax": [],
+            "SGST ON RCM - Receivable": [],
+            "TCS Deducted by Vendor": [],
+            "TCS Sales Input": [],
+            "TDS Deducted by Bank": [],
+            "TDS Deducted by MSEB": [],
+            "TDS Deducted On Dividend Received": [],
+            "TDS Receivable On Domestic Services": [],
+            "TDS Receivable On Export Services": [],
+            "Unclaimed CGST": [],
+            "Unclaimed IGST": [],
+            "Unclaimed SGST": []
+          },
+          "Duty Drawback Receivable": {
+            "Duty Drawback Receivable": []
+          },
+          "Interest Accrued but not due": {
+            "Accrued Interest on Term Deposits": []
+          },
+          "Loan given to Employees": {
+            "Loan to Dhananjay Thopte": [],
+            "Loan to Dinesh Mourya": [],
+            "Loan to Ganesh Bist": [],
+            "Loan to Gopal Suresh Hadap": [],
+            "Loan To Guddu Pande": [],
+            "Loan To Others": [],
+            "Loan to Pramod Mahale": [],
+            "Loan to Ravindra Sangle": [],
+            "Loan to Rupesh": [],
+            "Loan to Sayyad Nabi Abdulla": [],
+            "Loan to Shahu Jadhav": [],
+            "Loan to Shweta Pisalkar": [],
+            "Loan to Swapnil Pachbhai": [],
+            "Loan to Swapnil Patil": [],
+            "Loan to Swati Sabale": [],
+            "Loan to Thanu Patil": [],
+            "Loan to Yogesh Patil": []
+          },
+          "Loans and advances to related parties": {
+            "Ravi Sir Yes Bank Credit Card No. 5532044010004863": []
+          },
+          "Miscellaneous Expenses": {
+            "Pre-incorporation Expense": []
+          }
+        },
+        "Stock-in-Hand": [],
+        "Sundry Debtors": {
+          "Trade Receivables": {
+            "Trade Receivable- Domestic": [],
+            "Trade Receivable - Export": []
+          }
+        }
+      },
+      "Fixed Assets": {
+        "Computer & IT Equipment": [],
+        "CWIP - Intangible assets": [],
+        "CWIP - Tangible Assets": [],
+        "Electrical Installation & Fittings": [],
+        "End user devices, such as, desktops, laptops, etc.": [],
+        "Furniture & Fixture": [],
+        "Land & Building": [],
+        "Office Equipment": [],
+        "Plant & Machinery": [],
+        "Softwares": [],
+        "Trade Mark": [],
+        "Vehicles": []
+      },
+      "Inventories": {
+        "Finished Goods": {
+          "Finished Product Plant / System": []
+        },
+        "Goods in Transit": {
+          "Goods in Transit": []
+        },
+        "Raw Materials": {
+          "Automation": [],
+          "Consumables": [],
+          "Consumable_2": [],
+          "Electricals": [],
+          "Instruments": [],
+          "Insulation": [],
+          "Manufactured Equipment Material": [],
+          "PHE\u2019s": [],
+          "Piping and Fittings": [],
+          "Pneumatics": [],
+          "Process Accessories": [],
+          "Pumps": [],
+          "Stores & Spares": [],
+          "Structural Material": [],
+          "Structutural frames, ladders,staircases": [],
+          "Valves": []
+        },
+        "Stock in Trade": {
+          "Keofitt": [],
+          "Other Stock in Trade": []
+        },
+        "Semi-Finished Product Plant / System": [],
+        "WIP - Production": []
+      },
+      "Investments": {
+        "Investment in Preference Shares": [],
+        "Investments in debentures or bonds": [],
+        "Investments in Government or trust securitiesq": [],
+        "Investments in Mutual Funds": [],
+        "Investments in partnership firms": [],
+        "Investments in Quoted Equity Instruments": [],
+        "Investments in Unquoted Equity Instruments": []
+      },
+      "Misc. Expenses (ASSET)": [],
+      "Non-Current Assets": {
+        "Deferred Tax Asset": {
+          "Deferred Tax Assets": []
+        },
+        "Long Term Loans and Advances": {
+          "Unsecured Deposits": {
+            "Deposit For Flats @ Bhukum": [],
+            "Deposit-Suresh Desai": [],
+            "Deposit With Deluxe Industrial Gases": [],
+            "Suspense A/C": [],
+            "Unsecured Deposits": []
+          }
+        },
+        "Long Term Provisions": {
+          "Provision for Employee Benefits": {
+            "Bonus Payable": [],
+            "Leave Encashment Payable": [],
+            "Performance Incentive Payable": [],
+            "Provision for Gratuity": []
+          }
+        },
+        "Non-Current Investments": {
+          "Investments in Debentures or Bonds_2": [],
+          "Investments in Government or trust securities_2": [],
+          "Investments in Mutual Funds_2": [],
+          "Investments in Partnership Firms_2": [],
+          "Investments in Preference Shares_2": [],
+          "Investments in Quoted Equity Instruments_2": [],
+          "Investments in Unquoted Equity Instruments_2": []
+        },
+        "Other Non-Current Asset": {
+          "IDBI HEPL Group Gratuity Account": [],
+          "TDS Recoverable From Employee": []
+        }
+      }
+    },
+    "Liabilities": {
+      "Branch / Divisions": [],
+      "Capital Account": {
+        "Reserves & Surplus": {
+          "Surplus (Profit and Loss A/C)": {
+            "Period-End Closing Account": [],
+            "Surplus (Profit and Loss A/C)": []
+          }
+        }
+      },
+      "Current Liabilities": {
+        "Duties & Taxes": [],
+        "Other Current Liabilities": {
+          "Current Maturities of Long Term Debt": {
+            "Secured Loans": [],
+            "Unsecured Loans": []
+          },
+          "Deposits": {
+            "Security Deposit from Employees": []
+          },
+          "Other Payable": {
+            "Advance From Customers": [],
+            "ICICI Bank Credit Card-Dinesh M-4102 0203 3569 9002_New": [],
+            "ICICI Bank Credit Card-Ravi Varma Sir-5241 9394 4452 4000": [],
+            "ICICI Bank Credit Card-Santosh Joshi-4102 0203 3569 7006": [],
+            "SCB Bank Credit Card-Ravi Sir Personal - 1459": [],
+            "Yes Bank Credit Card-Anurag Ayade-5532 0440 1000 487": [],
+            "Yes bank Credit Card-Ashwini Patil-5532 0440 1000 4913": [],
+            "Yes Bank Credit Card-Ravi Sir-5532 0440 1000 4863": [],
+            "Yes Bank Credit Card-Ravi Sir-5532 0440 1001 9119": [],
+            "Yes Bank Credit Card-Ravi Varma- 5532 0440 1004 8506": []
+          },
+          "Statutory Liabilities": {
+            "ESIC Payable": {
+              "ESIC payable": []
+            },
+            "GST Output Tax": {
+              "CGST Payable on RCM": [],
+              "GST Payable on Advance": [],
+              "IGST Payable on RCM": [],
+              "Output CGST": [],
+              "Output IGST": [],
+              "Output SGST": [],
+              "Output UTGST": [],
+              "SGST Payable on RCM": [],
+              "TCS Sales Output": []
+            },
+            "Profession Tax Payable": {
+              "Profession Tax payable": []
+            },
+            "Provident Fund Payable": {
+              "Provident fund Payable": []
+            },
+            "TCS Payable": {
+              "TCS on Scrap Sales u/s 6CE": []
+            },
+            "TDS Payable": {
+              "TDS u/s 192": [],
+              "TDS u/s 194A": [],
+              "TDS u/s 194C": [],
+              "TDS u/s 194H": [],
+              "TDS u/s 194I(A)": [],
+              "TDS u/s 194IB": [],
+              "TDS u/s 194J": [],
+              "TDS u/s 194Q": [],
+              "TDS u/s 195": []
+            }
+          }
+        },
+        "Provisions": [],
+        "Short Term Borrowings": {
+          "HDFC Bank CC A/C 50200020928425": [],
+          "ICICI Bank OD A/C 336905000650": [],
+          "Yes Bank CC A/C 000884600000111": []
+        },
+        "Short Term Provisions": {
+          "Provision for Employee Benefits_CL": {
+            "Labour Charges Payable": [],
+            "Provision for Gratuity - Short term": [],
+            "Provision for Leave encashment - Short term": [],
+            "Salary Payable": [],
+            "Salary Payable-Aishwarya Varma": [],
+            "Salary Payable-Ashwini Varma": [],
+            "Salary Payable - Himanshu(cid:160) Varma": [],
+            "Salary Payable-Pawan Varma": [],
+            "Salary Payable-Ravi Varma": [],
+            "Stipend Payable": []
+          },
+          "Provision for Expenses": {
+            "Audit Fees Payable": [],
+            "Directors Commission Payable": [],
+            "Provision for Expenses": []
+          },
+          "Provision for Income Tax": {
+            "Provision for Income Tax - AY 2017-18": [],
+            "Provision for Income Tax - AY 2018-19": [],
+            "Provision for Income Tax - AY 2019-20": [],
+            "Provision for Income Tax - AY 2020-21": [],
+            "Provision for Income Tax - AY 2022-23": [],
+            "Provision for Income Tax - AY 2024-25": []
+          },
+          "Provision for Rent": {
+            "Rent Payable": [],
+            "Rent Payable - Ashwini Varma": [],
+            "Rent Payable - Ravi Varma": []
+          }
+        },
+        "Sundry Creditors": {
+          "Trade payables": {
+            "Creditors For Expenses": [],
+            "Sundry Creditors (Domestic)": [],
+            "Sundry Creditors (Import)": [],
+            "Supplier PF/ESIC Retention A/C": []
+          }
+        }
+      },
+      "Equity Share Capital": {
+        "Equity Share Capital- Ashwini Varma": [],
+        "Equity Share Capital- Radhakisan Varma": [],
+        "Equity Share Capital- Ravi Varma": []
+      },
+      "Loans (Liability)": {
+        "Bank OD A/c": [],
+        "Secured Loans": {
+          "Packing Credit Facilities": [],
+          "Yes Bank FC Import Financing Against Faccin Dies": [],
+          "Yes Bank FC Import Financing Against Mehrer Compres": [],
+          "Yes Bank FC Import Financing Against Mehrer Spares": [],
+          "Yes Bank FC Import Financing - Outokumpu 001BM91220450006": [],
+          "Yes Bank Loan Against Faccin Import Capex LC": [],
+          "Yes Bank PCFC - 001BM83203120031": [],
+          "Yes bank PCFC - 001PCFC213160013 - SAKU": [],
+          "Yes bank PCFC - 001PCFC213340002 - Steinecker": [],
+          "Yes bank PCFC - 001PCFC220420005 - Steinecker": [],
+          "Yes bank PCFC - 001PCFC220420006 - Steinecker": [],
+          "Yes bank PCFC (EPCL) ? 001AACB241430001 - Uganda Breweries Ltd, Kampala": [],
+          "Yes bank PCFC (EPCL) ? 001AACB241430002 - Uganda Breweries Ltd, Kampala": [],
+          "Yes bank PCFC (EPCL) ? 001AACB243120001 - Coopers Brewery Ltd, Australia": [],
+          "Yes bank PCFC (EPC) ? 594EPCL240220001 - Royal Casks Breweries Limited, Srilanka": [],
+          "Yes bank PCFC (EPC) ? 594EPCL240900015 - Coopers Brewery Ltd, Australia": [],
+          "Yes bank PCFC ? 001BM82221810001 - Saku": [],
+          "Yes bank PCFC ? 594PCFC230320002 - \" A+CO\"OJSC(cid:160) Azerbaijan": [],
+          "Yes bank PCFC ? 594PCFC231500006 - Neustark AG, Switzerland": [],
+          "Yes bank PCFC ? 594PCFC231660001 - Uganda Breweries Ltd, Uganda": [],
+          "Yes Bank Term Loan": []
+        },
+        "Unsecured Loans": {
+          "Loans - Hypro Engineers": [],
+          "Loans - L R Varma": [],
+          "Loans - R N Varma": []
+        }
+      },
+      "Long Term Borrowings": [],
+      "Non-Current Liabilities": {
+        "Deferred Tax Liabilities": {
+          "Deferred Tax Liability": []
+        }
+      },
+      "Other Long Term Liabilities": {
+        "ACQUISITION CLEARING ACCOUNT": [],
+        "AP DOWN PAYMENT CLEARING ACCOUNT": [],
+        "AP DOWN PAYMENT INTERIM ACCOUNT": [],
+        "AR DOWN PAYMENT CLEARING ACCOUNT": [],
+        "AR DOWN PAYMENT INTERIM ACCOUNT": [],
+        "FREIGHT CLEARING ACCOUNT": [],
+        "GL Opening Account": [],
+        "GOODS CLEARING ACCOUNT": [],
+        "GOODS RECEIVED BUT NOT INVOICED": [],
+        "Inventory Opening Account": [],
+        "Sundry Creditors Opening Account": [],
+        "Sundry Debtors Opening Account": []
+      },
+      "Suspense A/c": [],
+      "Profit & Loss A/c": []
+    },
+    "Expenses": {
+      "Depreciation": {
+        "Depreciation on Building": [],
+        "Depreciation on Computer & IT Equipment": [],
+        "Depreciation on Furniture & Fixtures": [],
+        "Depreciation on Office Equipment": [],
+        "Depreciation on Others": [],
+        "Depreciation on Plant and Machinery": [],
+        "Depreciation on Software": [],
+        "Depreciation on Trade Mark": [],
+        "Depreciation on Vehicles": []
+      },
+      "Direct Expenses": {
+        "Cost of Materials Consumed": {
+          "COST OF GOODS SOLD ACCOUNT": [],
+          "Goods in transit - Purchase": [],
+          "GST INPUT INTERIM ACCOUNT": [],
+          "INFO PURCHASE ACCOUNT": [],
+          "INFO PURCHASE OFFSET ACCOUNT": [],
+          "INFO PURCHASE RETURN ACCOUNT": [],
+          "INVENTORY DECREASE ACCOUNT (GOODS ISSUE)": [],
+          "INVENTORY INCREASE ACCOUNT (GOODS RECEIPT)": [],
+          "INVENTORY OFFSET P&L ACCOUNT": [],
+          "INVENTORY REVALUATION ACCOUNT": [],
+          "PRICE DIFFERENCE ACCOUNT": [],
+          "PRODUCTION WIP VARIANCE ACCOUNT": [],
+          "ROUNDING ACCOUNT": [],
+          "STANDARD PRICE VARIANCE ACCOUNT": [],
+          "WIP OFFSET P&L ACCOUNT": []
+        },
+        "Purchase of Raw Material": {
+          "info": [],
+          "Purchase Domestic- Goods": [],
+          "Purchase Material at Site ? Site (India)": [],
+          "Purchase Material at SIte ? Site (Overseas)": []
+        }
+      },
+      "Employee Benefit Expenses": {
+        "Contribution of Provident and Other Funds": {
+          "Contribution towards Admin Charges - PF": [],
+          "Employee State Insurance ? Employer?s Contribution": [],
+          "Gratuity Expenses": [],
+          "Leave Encashment Expense": [],
+          "Maharashtra Labour Welfare Fund ( MLWF )": [],
+          "Provident Fund - Employer Share": []
+        },
+        "Medical Expenses": {
+          "Employee Accident Insurance Expense (GPA)": [],
+          "Employee Health Insurance Expense (GHI)": [],
+          "Staff Medical Expenses": [],
+          "Technician Medical Expense": []
+        },
+        "Salary and Wages": {
+          "Bonus": [],
+          "Performance Incentive": [],
+          "Remuneration to Aishwarya Varma": [],
+          "Remuneration to Ashwini Varma": [],
+          "Remuneration to Himanshu Varma": [],
+          "Remuneration to Pawan Varma": [],
+          "Remuneration to Ravi Varma": [],
+          "Salary": [],
+          "Stipend": []
+        },
+        "Staff Welfare": {
+          "Daily Tiffins for Staff - Factory": [],
+          "Daily Tiffins for Staff - Office": [],
+          "Food and Refreshment Expenses": [],
+          "Professional Tax": [],
+          "Staff Training Expenses": [],
+          "Staff Welfare": [],
+          "Workmen Compensation Expenses": []
+        }
+      },
+      "Finance Cost": {
+        "Bank Charges": {
+          "Bank Charges - Others": [],
+          "Bank Guarantee Commission & Charges": [],
+          "Cash Credit & Overdraft Bank Charges": [],
+          "Foreign Exchange Conversion Charges": [],
+          "Letter of Credit Commission & Charges": []
+        },
+        "Interest Cost": {
+          "Interest on CC Facility": [],
+          "Interest on Forex Funding": [],
+          "Interest on MSME Vendor Payment": [],
+          "Interest on OD Account": [],
+          "Interest on PCFC": [],
+          "Interest on Term Loan": [],
+          "Interest On Unsecured Loans": []
+        }
+      },
+      "Indirect Expenses": {
+        "Establishment Expenses": {
+          "Annual Maintenance Charges": [],
+          "Auditors\u2019 Remuneration": [],
+          "Electricity Charges - Office": [],
+          "Fire Inusrance Expenses - Office": [],
+          "Insurance Charges - Vehicle": [],
+          "Insurance Expenses - Office": [],
+          "Insurance Expenses - Others": [],
+          "Internet Charges": [],
+          "Legal Expenses - ROC/Stamp Paper/Others": [],
+          "Process Audit and Certification Charges (Others)": [],
+          "Professional Fees - Indirect - External": [],
+          "Professional Fees - Indirect - Internal": [],
+          "Profession Tax - Company": [],
+          "Property Tax": [],
+          "Rates and Taxes": [],
+          "Rental Charges - Office Premises": [],
+          "Rental Charges - Others": [],
+          "Repairs & Maintenance - Factory Building": [],
+          "Repairs & Maintenance - Factory Building (Labour)": [],
+          "Repairs & Maintenance - Machinery": [],
+          "Repairs & Maintenance - Machinery (Labour)": [],
+          "Repairs & Maintenance - Office Building": [],
+          "Repairs & Maintenance - Office Building (Labour)": [],
+          "Repairs & Maintenance - Others": [],
+          "Repairs & Maintenance - Vehicles": [],
+          "Telephone/Mobile Expenses": []
+        },
+        "Manufacturing Expenses": {
+          "Certification Charges": {
+            "Certfication charges - Others": [],
+            "Certification Charges - CE": [],
+            "Certification Charges - U": []
+          },
+          "Direct Expenses-Factory": {
+            "Diesel Expenses - Factory": []
+          },
+          "Duties and Taxes": {
+            "Custom Duty": []
+          },
+          "Electricity Charges - Factory": {
+            "Electricity Charges - Factory": []
+          },
+          "Factory Labours": {
+            "Technicians ? Assembly": [],
+            "Technicians ? Fabrication": [],
+            "Technicians ? Machine Operations": [],
+            "Technicians ? Site Operations": [],
+            "Technicians ? Sub-Contract / Outsourced": []
+          },
+          "Freight": {
+            "Freight Import": [],
+            "Freight Inward - Domestic": []
+          },
+          "Insurance Charges - Direct": {
+            "Fire Inusrance Expenses - Factory": [],
+            "Insurance Charges - Product General Liability": [],
+            "Insurance Charges - Product Marine": [],
+            "Insurance Expenses - Direct": [],
+            "Insurance Expenses - Factory": [],
+            "Insurance for Stock - At Factory": []
+          },
+          "Loading Unloading Charges": {
+            "Loading & Unloading Charges -Inward": [],
+            "Loading Unloading Charges-Outward": []
+          },
+          "Lodging and Boarding": {
+            "Lodging & Boarding Expenses": []
+          },
+          "Other General Expenses": {
+            "Factory Rental Charges": [],
+            "Other Factory Overheads": [],
+            "Warranty Expenses": []
+          },
+          "Packing and Forwarding Charges": {
+            "Packing, Clearing and Forwarding Charges - Import": [],
+            "Packing, Clearing and Forwarding Charges - Inward - Domestic": []
+          },
+          "Professional/Technical Fees (Direct)": {
+            "Process Audit Charges (For Project)": [],
+            "Purchase Services For Project - Domestic": [],
+            "Purchase Services For Project - Overseas": [],
+            "Site Support charges": [],
+            "Testing Charges - Finished Goods": [],
+            "Testing Charges - Raw Material": []
+          },
+          "Selling and Distribution Expenses - Direct": {
+            "Freight Outward ? Product Specific": [],
+            "Insurance ? Stock In Transit (Sales) ? Product Specific": [],
+            "Loading & Unloading Charges ? Outward ? Product Specific": []
+          },
+          "Site Expenses": {
+            "Site Expenses": []
+          },
+          "Transportation Charges": {
+            "Transportation Charges GTA - Inward": [],
+            "Transportation Charges other than GTA": []
+          },
+          "Travelling": {
+            "Travel Expenses For Project": []
+          }
+        },
+        "Other Indirect Expenses": {
+          "Fees and Subscriptions": {
+            "Membership Charges": [],
+            "Subscription Charges": []
+          },
+          "Other General Expenses - Indirect": {
+            "Books & Periodicals": [],
+            "Brokerage and Commission": [],
+            "Donation": [],
+            "Excess GST ITC Claim expense out": [],
+            "Interest, Late fees and Penalties on Statutory Dues": [],
+            "Other Miscellaneous Expenses": [],
+            "Prior-Period Expenses": [],
+            "Recruitment Charges": [],
+            "Security Charges - Factory": [],
+            "Sundry Balances Written Off": []
+          },
+          "Printing and Stationery": {
+            "Courier and Postage Charges": [],
+            "Printing & Stationary Expenses": []
+          },
+          "Realized/ Unrealised Gain and Loss": {
+            "Realised Gain/Loss on Forex Transaction": [],
+            "Unrealised Gain/Loss on Forex Transaction": []
+          },
+          "Selling and Distribution Expenses": {
+            "Distribution Expenses": {
+              "Freight Outward ? General": [],
+              "GST on FOC": [],
+              "Insurance ? Stock In Transit (Sales) ? General": [],
+              "Loading & Unloading Charges ? Outward ? General": [],
+              "Packing, Clearing & Forwarding Charges - Export": [],
+              "Transportation Charges GTA - Outward": [],
+              "Travel expenses - After Sales & Marketing": []
+            },
+            "Selling Expenses": {
+              "Advertisement & Promotion ? Magazines": [],
+              "After Sales Service": [],
+              "Business Gifts & Promotional Items": [],
+              "Distributor Commission Charges": [],
+              "Exhibition Charges": [],
+              "Marketing Agency Charges": [],
+              "Product Sales Commission Charges": [],
+              "Website Design & Support Charges": []
+            }
+          },
+          "Travelling Expenses": {
+            "Local Conveyance": [],
+            "Staff Conveyance (Office to Factory)": [],
+            "Travelling Expenses at Site": []
+          },
+          "Housekeeping charges": [],
+          "Loss on sale/Disposal of Property, Pant and Equipment": []
+        }
+      },
+      "Purchase Accounts": [],
+      "Tax Expenses": {
+        "Current Tax (Income Tax )": [],
+        "Deferred Tax": [],
+        "Taxation for earlier years": []
+      }
+    },
+    "Income": {
+      "Direct Incomes": [],
+      "Indirect Incomes": {
+        "Dividend Income": {
+          "Dividend Income": []
+        },
+        "Gain on sale of Assets": {
+          "Gain on sale of investments": [],
+          "Gain on sale of Property, Plant and Equipment": []
+        },
+        "Interest Income": {
+          "Interest on Fixed Deposits": []
+        },
+        "Other non-operating income": {
+          "Balances Written Back": [],
+          "Duty Drawback received": [],
+          "Merchandise Export Scheme": [],
+          "Miscellaneous Income": []
+        }
+      },
+      "Sales Accounts": {
+        "Others - Reimbursement": {
+          "Sales Inter-state (MG)": [],
+          "Sales Intra-state (MG)": []
+        },
+        "Sale of Product": {
+          "Domestic Sales": {
+            "Sales - Breweries Plant (Domestic)": {
+              "Sales - C02 Recovery Brewery Plant (Domestic)": [],
+              "Sales Domestic- Goods": [],
+              "Sales Domestic- Scrap": [],
+              "Sales Revenue Account": []
+            },
+            "Sales - Others Plant (Domestic)": {
+              "Sales - Beverages Plant (Domestic)": []
+            },
+            "Sales - Keofitt (Domestic )": [],
+            "Sales -Spares (Domestic)": []
+          },
+          "Export Sales": {
+            "Sales - Breweries Plant (Export)": {
+              "Sales - Beverages Plant (Export)": [],
+              "Sales Export - Goods": []
+            },
+            "Sales - Keofitt (Export)": [],
+            "Sales -Spares (Export)": []
+          }
+        },
+        "Sale of Services": {
+          "Domestic Sales_Services": {
+            "Sales Domestic- Service": []
+          },
+          "Export Sales_Services": {
+            "Sales Export - Service": [],
+            "Sales - Other Services (Export )": []
+          },
+          "Freight_Services": {
+            "Freight Domestic": [],
+            "Freight Export - CIF": [],
+            "Freight Export - DAP": [],
+            "Freight Export - DDP": [],
+            "Freight Export - FOB": []
+          },
+          "Other - Reimbursement_Services": {
+            "Others - Reimbursement": []
+          }
+        }
+      }
+    }
+  },
+  "flat_list": [
+    "Fixed Deposit For BG",
+    "Fixed Deposit For LC",
+    "Fixed Deposits",
+    "HDFC Bank A/c No. 50200021020747",
+    "HDFC Bank Credit Card No. 4718 6501 0001 1755",
+    "HDFC Bank EURO EEFC 50200026932447",
+    "ICICI Bank Credit Card-Dinesh M-4102 0203 3569 9002",
+    "IDBI C/A No. 0007102000031426",
+    "Multicurrency Forex Card",
+    "Sberbank A/c. No. 45000356100000043700",
+    "Yes Bank A/c. No. 000884100001301",
+    "Yes Bank Credit Card-Anurag Ayade-5532 0440 1000 4871",
+    "Yes Bank EEFC EUR A/c 000882300000204",
+    "Yes Bank Trustees Hypro Engineers Private Limited EGGCAS ? 095188700000102",
+    "Yes Bank USD EEFC 000880600000312",
+    "Cash",
+    "Cash in hand - Domestic Currecny",
+    "Cash in hand - International Currency",
+    "Deposits (Asset)",
+    "Loans & Advances (Asset)",
+    "Prepaid Expenses",
+    "Advance to Ajinkya Ramdas Barve",
+    "Advance to Akshay Shinde",
+    "Advance to Amolratna Jadhav",
+    "Advance to Anurag Ayade",
+    "Advance to Ashwini Patil",
+    "Advance to Avinash Ahire",
+    "Advance to Bipin Ambadkar",
+    "Advance to Dinesh Marne",
+    "Advance to Hemant Hadap",
+    "Advance to Himmat Sutar",
+    "Advance to Kanchan Wanarase",
+    "Advance to Ketan Edhate",
+    "Advance to Krishna Bhuvad",
+    "Advance to Kuldeep Varma",
+    "Advance to Manodip Patil",
+    "Advance to Manoj Kumar Dehury",
+    "Advance to Mohd Azhar Hussain",
+    "Advance to Pabitra Bhagat",
+    "Advance to Prashant Dhadve",
+    "Advance to Rajesh Salunke",
+    "Advance to Sagar Gadade",
+    "Advance to Sandesh Patil",
+    "Advance to Sanket Sable",
+    "Advance to Santosh Joshi",
+    "Advance to Suraj Gaikwad",
+    "Advance to Swapnil Somnath Pachbhai",
+    "Advance to Vikram Bhandwale",
+    "Advance to Yogesh Patil",
+    "Advance to Zain Shaikh",
+    "Ashwini Patil Yes bank Credit Card No. 4913",
+    "Advance Tax AY 17-18",
+    "Advance Tax AY 18-19",
+    "Advance Tax AY 19-20",
+    "Advance Tax AY 20-21",
+    "Advance Tax AY 21-22",
+    "Advance Tax AY 22-23",
+    "Advance Tax AY 23-24",
+    "Advance Tax AY 24-25",
+    "Advance Tax AY 25-26",
+    "Advance Tax AY 26-27",
+    "CGST ON RCM - Receivable",
+    "GST Cash Ledger Balance",
+    "GST Refund Receivable",
+    "IGST on Import",
+    "IGST ON RCM - Receivable",
+    "Ineligible ITC",
+    "Input CGST Pipeline A/C",
+    "Input Credit Balance",
+    "Input Credit CGST",
+    "Input Credit IGST",
+    "Input Credit SGST",
+    "Input Credit UTGST",
+    "Input GST Balance",
+    "Input IGST Pipeline A/C",
+    "Input SGST Pipeline A/C",
+    "Refund receivable for AY 2018-19",
+    "Refund receivable for AY 2019-20",
+    "Refund receivable for AY 2020-21",
+    "Refund receivable for AY 2021-22",
+    "Refund receivable for AY 2022-23",
+    "Refund receivable for AY 2024-25",
+    "Self Assessment Tax",
+    "SGST ON RCM - Receivable",
+    "TCS Deducted by Vendor",
+    "TCS Sales Input",
+    "TDS Deducted by Bank",
+    "TDS Deducted by MSEB",
+    "TDS Deducted On Dividend Received",
+    "TDS Receivable On Domestic Services",
+    "TDS Receivable On Export Services",
+    "Unclaimed CGST",
+    "Unclaimed IGST",
+    "Unclaimed SGST",
+    "Duty Drawback Receivable",
+    "Accrued Interest on Term Deposits",
+    "Loan to Dhananjay Thopte",
+    "Loan to Dinesh Mourya",
+    "Loan to Ganesh Bist",
+    "Loan to Gopal Suresh Hadap",
+    "Loan To Guddu Pande",
+    "Loan To Others",
+    "Loan to Pramod Mahale",
+    "Loan to Ravindra Sangle",
+    "Loan to Rupesh",
+    "Loan to Sayyad Nabi Abdulla",
+    "Loan to Shahu Jadhav",
+    "Loan to Shweta Pisalkar",
+    "Loan to Swapnil Pachbhai",
+    "Loan to Swapnil Patil",
+    "Loan to Swati Sabale",
+    "Loan to Thanu Patil",
+    "Loan to Yogesh Patil",
+    "Ravi Sir Yes Bank Credit Card No. 5532044010004863",
+    "Pre-incorporation Expense",
+    "Stock-in-Hand",
+    "Trade Receivable- Domestic",
+    "Trade Receivable - Export",
+    "Computer & IT Equipment",
+    "CWIP - Intangible assets",
+    "CWIP - Tangible Assets",
+    "Electrical Installation & Fittings",
+    "End user devices, such as, desktops, laptops, etc.",
+    "Furniture & Fixture",
+    "Land & Building",
+    "Office Equipment",
+    "Plant & Machinery",
+    "Softwares",
+    "Trade Mark",
+    "Vehicles",
+    "Finished Product Plant / System",
+    "Goods in Transit",
+    "Automation",
+    "Consumables",
+    "Consumable_2",
+    "Electricals",
+    "Instruments",
+    "Insulation",
+    "Manufactured Equipment Material",
+    "PHE\u2019s",
+    "Piping and Fittings",
+    "Pneumatics",
+    "Process Accessories",
+    "Pumps",
+    "Stores & Spares",
+    "Structural Material",
+    "Structutural frames, ladders,staircases",
+    "Valves",
+    "Keofitt",
+    "Other Stock in Trade",
+    "Semi-Finished Product Plant / System",
+    "WIP - Production",
+    "Investment in Preference Shares",
+    "Investments in debentures or bonds",
+    "Investments in Government or trust securitiesq",
+    "Investments in Mutual Funds",
+    "Investments in partnership firms",
+    "Investments in Quoted Equity Instruments",
+    "Investments in Unquoted Equity Instruments",
+    "Misc. Expenses (ASSET)",
+    "Deferred Tax Assets",
+    "Deposit For Flats @ Bhukum",
+    "Deposit-Suresh Desai",
+    "Deposit With Deluxe Industrial Gases",
+    "Suspense A/C",
+    "Unsecured Deposits",
+    "Bonus Payable",
+    "Leave Encashment Payable",
+    "Performance Incentive Payable",
+    "Provision for Gratuity",
+    "Investments in Debentures or Bonds_2",
+    "Investments in Government or trust securities_2",
+    "Investments in Mutual Funds_2",
+    "Investments in Partnership Firms_2",
+    "Investments in Preference Shares_2",
+    "Investments in Quoted Equity Instruments_2",
+    "Investments in Unquoted Equity Instruments_2",
+    "IDBI HEPL Group Gratuity Account",
+    "TDS Recoverable From Employee",
+    "Branch / Divisions",
+    "Period-End Closing Account",
+    "Surplus (Profit and Loss A/C)",
+    "Duties & Taxes",
+    "Secured Loans",
+    "Unsecured Loans",
+    "Security Deposit from Employees",
+    "Advance From Customers",
+    "ICICI Bank Credit Card-Dinesh M-4102 0203 3569 9002_New",
+    "ICICI Bank Credit Card-Ravi Varma Sir-5241 9394 4452 4000",
+    "ICICI Bank Credit Card-Santosh Joshi-4102 0203 3569 7006",
+    "SCB Bank Credit Card-Ravi Sir Personal - 1459",
+    "Yes Bank Credit Card-Anurag Ayade-5532 0440 1000 487",
+    "Yes bank Credit Card-Ashwini Patil-5532 0440 1000 4913",
+    "Yes Bank Credit Card-Ravi Sir-5532 0440 1000 4863",
+    "Yes Bank Credit Card-Ravi Sir-5532 0440 1001 9119",
+    "Yes Bank Credit Card-Ravi Varma- 5532 0440 1004 8506",
+    "ESIC payable",
+    "CGST Payable on RCM",
+    "GST Payable on Advance",
+    "IGST Payable on RCM",
+    "Output CGST",
+    "Output IGST",
+    "Output SGST",
+    "Output UTGST",
+    "SGST Payable on RCM",
+    "TCS Sales Output",
+    "Profession Tax payable",
+    "Provident fund Payable",
+    "TCS on Scrap Sales u/s 6CE",
+    "TDS u/s 192",
+    "TDS u/s 194A",
+    "TDS u/s 194C",
+    "TDS u/s 194H",
+    "TDS u/s 194I(A)",
+    "TDS u/s 194IB",
+    "TDS u/s 194J",
+    "TDS u/s 194Q",
+    "TDS u/s 195",
+    "Provisions",
+    "HDFC Bank CC A/C 50200020928425",
+    "ICICI Bank OD A/C 336905000650",
+    "Yes Bank CC A/C 000884600000111",
+    "Labour Charges Payable",
+    "Provision for Gratuity - Short term",
+    "Provision for Leave encashment - Short term",
+    "Salary Payable",
+    "Salary Payable-Aishwarya Varma",
+    "Salary Payable-Ashwini Varma",
+    "Salary Payable - Himanshu(cid:160) Varma",
+    "Salary Payable-Pawan Varma",
+    "Salary Payable-Ravi Varma",
+    "Stipend Payable",
+    "Audit Fees Payable",
+    "Directors Commission Payable",
+    "Provision for Expenses",
+    "Provision for Income Tax - AY 2017-18",
+    "Provision for Income Tax - AY 2018-19",
+    "Provision for Income Tax - AY 2019-20",
+    "Provision for Income Tax - AY 2020-21",
+    "Provision for Income Tax - AY 2022-23",
+    "Provision for Income Tax - AY 2024-25",
+    "Rent Payable",
+    "Rent Payable - Ashwini Varma",
+    "Rent Payable - Ravi Varma",
+    "Creditors For Expenses",
+    "Sundry Creditors (Domestic)",
+    "Sundry Creditors (Import)",
+    "Supplier PF/ESIC Retention A/C",
+    "Equity Share Capital- Ashwini Varma",
+    "Equity Share Capital- Radhakisan Varma",
+    "Equity Share Capital- Ravi Varma",
+    "Bank OD A/c",
+    "Packing Credit Facilities",
+    "Yes Bank FC Import Financing Against Faccin Dies",
+    "Yes Bank FC Import Financing Against Mehrer Compres",
+    "Yes Bank FC Import Financing Against Mehrer Spares",
+    "Yes Bank FC Import Financing - Outokumpu 001BM91220450006",
+    "Yes Bank Loan Against Faccin Import Capex LC",
+    "Yes Bank PCFC - 001BM83203120031",
+    "Yes bank PCFC - 001PCFC213160013 - SAKU",
+    "Yes bank PCFC - 001PCFC213340002 - Steinecker",
+    "Yes bank PCFC - 001PCFC220420005 - Steinecker",
+    "Yes bank PCFC - 001PCFC220420006 - Steinecker",
+    "Yes bank PCFC (EPCL) ? 001AACB241430001 - Uganda Breweries Ltd, Kampala",
+    "Yes bank PCFC (EPCL) ? 001AACB241430002 - Uganda Breweries Ltd, Kampala",
+    "Yes bank PCFC (EPCL) ? 001AACB243120001 - Coopers Brewery Ltd, Australia",
+    "Yes bank PCFC (EPC) ? 594EPCL240220001 - Royal Casks Breweries Limited, Srilanka",
+    "Yes bank PCFC (EPC) ? 594EPCL240900015 - Coopers Brewery Ltd, Australia",
+    "Yes bank PCFC ? 001BM82221810001 - Saku",
+    "Yes bank PCFC ? 594PCFC230320002 - \" A+CO\"OJSC(cid:160) Azerbaijan",
+    "Yes bank PCFC ? 594PCFC231500006 - Neustark AG, Switzerland",
+    "Yes bank PCFC ? 594PCFC231660001 - Uganda Breweries Ltd, Uganda",
+    "Yes Bank Term Loan",
+    "Loans - Hypro Engineers",
+    "Loans - L R Varma",
+    "Loans - R N Varma",
+    "Long Term Borrowings",
+    "Deferred Tax Liability",
+    "ACQUISITION CLEARING ACCOUNT",
+    "AP DOWN PAYMENT CLEARING ACCOUNT",
+    "AP DOWN PAYMENT INTERIM ACCOUNT",
+    "AR DOWN PAYMENT CLEARING ACCOUNT",
+    "AR DOWN PAYMENT INTERIM ACCOUNT",
+    "FREIGHT CLEARING ACCOUNT",
+    "GL Opening Account",
+    "GOODS CLEARING ACCOUNT",
+    "GOODS RECEIVED BUT NOT INVOICED",
+    "Inventory Opening Account",
+    "Sundry Creditors Opening Account",
+    "Sundry Debtors Opening Account",
+    "Suspense A/c",
+    "Profit & Loss A/c",
+    "Depreciation on Building",
+    "Depreciation on Computer & IT Equipment",
+    "Depreciation on Furniture & Fixtures",
+    "Depreciation on Office Equipment",
+    "Depreciation on Others",
+    "Depreciation on Plant and Machinery",
+    "Depreciation on Software",
+    "Depreciation on Trade Mark",
+    "Depreciation on Vehicles",
+    "COST OF GOODS SOLD ACCOUNT",
+    "Goods in transit - Purchase",
+    "GST INPUT INTERIM ACCOUNT",
+    "INFO PURCHASE ACCOUNT",
+    "INFO PURCHASE OFFSET ACCOUNT",
+    "INFO PURCHASE RETURN ACCOUNT",
+    "INVENTORY DECREASE ACCOUNT (GOODS ISSUE)",
+    "INVENTORY INCREASE ACCOUNT (GOODS RECEIPT)",
+    "INVENTORY OFFSET P&L ACCOUNT",
+    "INVENTORY REVALUATION ACCOUNT",
+    "PRICE DIFFERENCE ACCOUNT",
+    "PRODUCTION WIP VARIANCE ACCOUNT",
+    "ROUNDING ACCOUNT",
+    "STANDARD PRICE VARIANCE ACCOUNT",
+    "WIP OFFSET P&L ACCOUNT",
+    "info",
+    "Purchase Domestic- Goods",
+    "Purchase Material at Site ? Site (India)",
+    "Purchase Material at SIte ? Site (Overseas)",
+    "Contribution towards Admin Charges - PF",
+    "Employee State Insurance ? Employer?s Contribution",
+    "Gratuity Expenses",
+    "Leave Encashment Expense",
+    "Maharashtra Labour Welfare Fund ( MLWF )",
+    "Provident Fund - Employer Share",
+    "Employee Accident Insurance Expense (GPA)",
+    "Employee Health Insurance Expense (GHI)",
+    "Staff Medical Expenses",
+    "Technician Medical Expense",
+    "Bonus",
+    "Performance Incentive",
+    "Remuneration to Aishwarya Varma",
+    "Remuneration to Ashwini Varma",
+    "Remuneration to Himanshu Varma",
+    "Remuneration to Pawan Varma",
+    "Remuneration to Ravi Varma",
+    "Salary",
+    "Stipend",
+    "Daily Tiffins for Staff - Factory",
+    "Daily Tiffins for Staff - Office",
+    "Food and Refreshment Expenses",
+    "Professional Tax",
+    "Staff Training Expenses",
+    "Staff Welfare",
+    "Workmen Compensation Expenses",
+    "Bank Charges - Others",
+    "Bank Guarantee Commission & Charges",
+    "Cash Credit & Overdraft Bank Charges",
+    "Foreign Exchange Conversion Charges",
+    "Letter of Credit Commission & Charges",
+    "Interest on CC Facility",
+    "Interest on Forex Funding",
+    "Interest on MSME Vendor Payment",
+    "Interest on OD Account",
+    "Interest on PCFC",
+    "Interest on Term Loan",
+    "Interest On Unsecured Loans",
+    "Annual Maintenance Charges",
+    "Auditors\u2019 Remuneration",
+    "Electricity Charges - Office",
+    "Fire Inusrance Expenses - Office",
+    "Insurance Charges - Vehicle",
+    "Insurance Expenses - Office",
+    "Insurance Expenses - Others",
+    "Internet Charges",
+    "Legal Expenses - ROC/Stamp Paper/Others",
+    "Process Audit and Certification Charges (Others)",
+    "Professional Fees - Indirect - External",
+    "Professional Fees - Indirect - Internal",
+    "Profession Tax - Company",
+    "Property Tax",
+    "Rates and Taxes",
+    "Rental Charges - Office Premises",
+    "Rental Charges - Others",
+    "Repairs & Maintenance - Factory Building",
+    "Repairs & Maintenance - Factory Building (Labour)",
+    "Repairs & Maintenance - Machinery",
+    "Repairs & Maintenance - Machinery (Labour)",
+    "Repairs & Maintenance - Office Building",
+    "Repairs & Maintenance - Office Building (Labour)",
+    "Repairs & Maintenance - Others",
+    "Repairs & Maintenance - Vehicles",
+    "Telephone/Mobile Expenses",
+    "Certfication charges - Others",
+    "Certification Charges - CE",
+    "Certification Charges - U",
+    "Diesel Expenses - Factory",
+    "Custom Duty",
+    "Electricity Charges - Factory",
+    "Technicians ? Assembly",
+    "Technicians ? Fabrication",
+    "Technicians ? Machine Operations",
+    "Technicians ? Site Operations",
+    "Technicians ? Sub-Contract / Outsourced",
+    "Freight Import",
+    "Freight Inward - Domestic",
+    "Fire Inusrance Expenses - Factory",
+    "Insurance Charges - Product General Liability",
+    "Insurance Charges - Product Marine",
+    "Insurance Expenses - Direct",
+    "Insurance Expenses - Factory",
+    "Insurance for Stock - At Factory",
+    "Loading & Unloading Charges -Inward",
+    "Loading Unloading Charges-Outward",
+    "Lodging & Boarding Expenses",
+    "Factory Rental Charges",
+    "Other Factory Overheads",
+    "Warranty Expenses",
+    "Packing, Clearing and Forwarding Charges - Import",
+    "Packing, Clearing and Forwarding Charges - Inward - Domestic",
+    "Process Audit Charges (For Project)",
+    "Purchase Services For Project - Domestic",
+    "Purchase Services For Project - Overseas",
+    "Site Support charges",
+    "Testing Charges - Finished Goods",
+    "Testing Charges - Raw Material",
+    "Freight Outward ? Product Specific",
+    "Insurance ? Stock In Transit (Sales) ? Product Specific",
+    "Loading & Unloading Charges ? Outward ? Product Specific",
+    "Site Expenses",
+    "Transportation Charges GTA - Inward",
+    "Transportation Charges other than GTA",
+    "Travel Expenses For Project",
+    "Membership Charges",
+    "Subscription Charges",
+    "Books & Periodicals",
+    "Brokerage and Commission",
+    "Donation",
+    "Excess GST ITC Claim expense out",
+    "Interest, Late fees and Penalties on Statutory Dues",
+    "Other Miscellaneous Expenses",
+    "Prior-Period Expenses",
+    "Recruitment Charges",
+    "Security Charges - Factory",
+    "Sundry Balances Written Off",
+    "Courier and Postage Charges",
+    "Printing & Stationary Expenses",
+    "Realised Gain/Loss on Forex Transaction",
+    "Unrealised Gain/Loss on Forex Transaction",
+    "Freight Outward ? General",
+    "GST on FOC",
+    "Insurance ? Stock In Transit (Sales) ? General",
+    "Loading & Unloading Charges ? Outward ? General",
+    "Packing, Clearing & Forwarding Charges - Export",
+    "Transportation Charges GTA - Outward",
+    "Travel expenses - After Sales & Marketing",
+    "Advertisement & Promotion ? Magazines",
+    "After Sales Service",
+    "Business Gifts & Promotional Items",
+    "Distributor Commission Charges",
+    "Exhibition Charges",
+    "Marketing Agency Charges",
+    "Product Sales Commission Charges",
+    "Website Design & Support Charges",
+    "Local Conveyance",
+    "Staff Conveyance (Office to Factory)",
+    "Travelling Expenses at Site",
+    "Housekeeping charges",
+    "Loss on sale/Disposal of Property, Pant and Equipment",
+    "Purchase Accounts",
+    "Current Tax (Income Tax )",
+    "Deferred Tax",
+    "Taxation for earlier years",
+    "Direct Incomes",
+    "Dividend Income",
+    "Gain on sale of investments",
+    "Gain on sale of Property, Plant and Equipment",
+    "Interest on Fixed Deposits",
+    "Balances Written Back",
+    "Duty Drawback received",
+    "Merchandise Export Scheme",
+    "Miscellaneous Income",
+    "Sales Inter-state (MG)",
+    "Sales Intra-state (MG)",
+    "Sales - C02 Recovery Brewery Plant (Domestic)",
+    "Sales Domestic- Goods",
+    "Sales Domestic- Scrap",
+    "Sales Revenue Account",
+    "Sales - Beverages Plant (Domestic)",
+    "Sales - Keofitt (Domestic )",
+    "Sales -Spares (Domestic)",
+    "Sales - Beverages Plant (Export)",
+    "Sales Export - Goods",
+    "Sales - Keofitt (Export)",
+    "Sales -Spares (Export)",
+    "Sales Domestic- Service",
+    "Sales Export - Service",
+    "Sales - Other Services (Export )",
+    "Freight Domestic",
+    "Freight Export - CIF",
+    "Freight Export - DAP",
+    "Freight Export - DDP",
+    "Freight Export - FOB",
+    "Others - Reimbursement"
+  ],
+  "debug_sentences": null,
+  "debug_levels": null,
+  "sentence_array": [],
+  "phase_3": [],
+  "phase_4": [],
+  "phase_5": []
+}
