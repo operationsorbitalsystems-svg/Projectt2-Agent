@@ -17,7 +17,7 @@ import uuid
 from utils.logger import configure_logging
 from config import DEBUG
 from mistral_comp.invoice_parser import InvoiceParser
-from agent.agent_qeue import get_agent_queue, AgentQueue
+from agent.agent_qeue import get_agent_queue
 from agent.expense_tree import EXPENSES_TREE
 from pathlib import Path
 

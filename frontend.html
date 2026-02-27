@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger Lens — Invoice Classifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── Reset & Base ────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0b0e11;
+    --surface:  #12161b;
+    --border:   #1e252e;
+    --border-hi:#2d3845;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --accent:   #f59e0b;
+    --accent2:  #06b6d4;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --orange:   #f97316;
+    --radius:   10px;
+    --mono:     'JetBrains Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  html { font-size: 15px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise grain overlay ─────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: .4;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  .app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .logo-mark {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 0 30px rgba(245,158,11,.3);
+  }
+
+  .logo-text h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1;
+  }
+
+  .logo-text span {
+    font-size: .75rem;
+    font-weight: 400;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .header-badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: var(--accent);
+    background: rgba(245,158,11,.1);
+    border: 1px solid rgba(245,158,11,.25);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  /* ── Grid ─────────────────────────────────────────────────── */
+  .upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 700px) { .upload-grid { grid-template-columns: 1fr; } }
+
+  /* ── Card ─────────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: var(--border-hi); }
+
+  .card-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .7rem;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .card-label .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .card-label .dot.cyan { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+
+  /* ── Drop Zone ───────────────────────────────────────────── */
+  .drop-zone {
+    border: 1.5px dashed var(--border-hi);
+    border-radius: 8px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(245,158,11,.04);
+  }
+
+  .drop-zone.has-file {
+    border-style: solid;
+    border-color: var(--green);
+    background: rgba(16,185,129,.04);
+  }
+
+  .drop-zone.cyan:hover, .drop-zone.cyan.dragover {
+    border-color: var(--accent2);
+    background: rgba(6,182,212,.04);
+  }
+
+  .drop-zone.cyan.has-file {
+    border-color: var(--accent2);
+    background: rgba(6,182,212,.04);
+  }
+
+  .drop-zone input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .drop-icon { font-size: 2rem; margin-bottom: 10px; }
+
+  .drop-text-main {
+    font-weight: 700;
+    font-size: .95rem;
+    margin-bottom: 4px;
+  }
+
+  .drop-text-sub {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  .file-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .file-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.05);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--text);
+  }
+
+  .file-chip .icon { font-size: 14px; }
+  .file-chip .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-chip .size { color: var(--muted); flex-shrink: 0; }
+
+  /* ── Process Button ──────────────────────────────────────── */
+  .process-row {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  #btn-process {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: .9rem;
+    letter-spacing: .03em;
+    padding: 13px 32px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #btn-process:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(245,158,11,.35); }
+  #btn-process:active { transform: translateY(0); }
+  #btn-process:disabled {
+    background: var(--border-hi);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  #btn-process .spinner {
+    display: none;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,.3);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  #btn-process.loading .spinner { display: inline-block; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .process-hint {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  /* ── Two-column lower section ─────────────────────────────── */
+  .lower-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) { .lower-grid { grid-template-columns: 1fr; } }
+
+  /* ── COA Tree ─────────────────────────────────────────────── */
+  #coa-panel { position: sticky; top: 20px; }
+
+  .section-title {
+    font-size: .68rem;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .section-title::after {
+    content: ''; flex: 1;
+    height: 1px; background: var(--border);
+  }
+
+  .tree-empty {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--muted);
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+  }
+
+  .tree-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    max-height: 520px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: .75rem;
+  }
+
+  .tree-wrap::-webkit-scrollbar { width: 4px; }
+  .tree-wrap::-webkit-scrollbar-track { background: transparent; }
+  .tree-wrap::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+  .tree-node { user-select: none; }
+
+  .tree-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 4px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+
+  .tree-row:hover { background: rgba(255,255,255,.05); }
+
+  .tree-chevron {
+    width: 14px; flex-shrink: 0;
+    color: var(--muted);
+    transition: transform .15s;
+    font-size: 10px;
+  }
+
+  .tree-chevron.open { transform: rotate(90deg); }
+  .tree-chevron.leaf { visibility: hidden; }
+
+  .tree-key {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .tree-key.leaf-node { color: var(--text); font-weight: 400; }
+
+  .tree-children { padding-left: 16px; overflow: hidden; }
+  .tree-children.collapsed { display: none; }
+
+  /* ── Results ──────────────────────────────────────────────── */
+  .results-empty {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--muted);
+    padding: 40px 20px;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    animation: slide-in .3s ease both;
+    transition: border-color .3s;
+  }
+
+  .result-card.done { border-left: 3px solid var(--green); }
+  .result-card.error { border-left: 3px solid var(--red); }
+  .result-card.running { border-left: 3px solid var(--orange); }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .rc-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .rc-filename {
+    font-weight: 700;
+    font-size: .9rem;
+    flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .rc-status-badge {
+    font-family: var(--mono);
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .badge-running { background: rgba(249,115,22,.15); color: var(--orange); }
+  .badge-done    { background: rgba(16,185,129,.15);  color: var(--green); }
+  .badge-error   { background: rgba(239,68,68,.15);   color: var(--red); }
+
+  .rc-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .rc-meta span { display: flex; align-items: center; gap: 5px; }
+
+  .rc-leaf {
+    background: rgba(6,182,212,.07);
+    border: 1px solid rgba(6,182,212,.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+
+  .rc-leaf-label {
+    font-family: var(--mono);
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--accent2);
+    margin-bottom: 6px;
+  }
+
+  .rc-leaf-value {
+    font-family: var(--mono);
+    font-size: .88rem;
+    font-weight: 500;
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  .rc-error-msg {
+    font-family: var(--mono);
+    font-size: .75rem;
+    color: var(--red);
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  /* parsing/running shimmer */
+  .rc-leaf.shimmer {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,.03) 25%,
+      rgba(255,255,255,.07) 50%,
+      rgba(255,255,255,.03) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-color: var(--border-hi);
+  }
+
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ── Batch complete banner ────────────────────────────────── */
+  #batch-banner {
+    display: none;
+    background: rgba(16,185,129,.1);
+    border: 1px solid rgba(16,185,129,.3);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: var(--green);
+    margin-bottom: 20px;
+    animation: slide-in .3s ease both;
+  }
+
+  /* ── Progress bar at top ─────────────────────────────────── */
+  #top-progress {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 2px; z-index: 1000;
+    background: var(--border);
+    display: none;
+  }
+
+  #top-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .4s ease;
+    width: 0%;
+  }
+
+  /* ── Toasts ──────────────────────────────────────────────── */
+  #toast-area {
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 10000;
+  }
+
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border-hi);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: var(--mono);
+    font-size: .75rem;
+    max-width: 300px;
+    animation: toast-in .25s ease both;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  }
+
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.error   { border-left: 3px solid var(--red); }
+  .toast.info    { border-left: 3px solid var(--accent2); }
+
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+</style>
+</head>
+<body>
+<div id="top-progress"><div id="top-progress-fill"></div></div>
+<div id="toast-area"></div>
+
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-mark">🔍</div>
+    <div class="logo-text">
+      <h1>Ledger Lens</h1>
+      <span>Invoice COA Classifier</span>
+    </div>
+    <div class="header-badge">Orbital Systems</div>
+  </header>
+
+  <!-- Upload Zone -->
+  <div class="upload-grid">
+
+    <!-- COA Upload -->
+    <div class="card">
+      <div class="card-label"><span class="dot"></span> Chart of Accounts</div>
+      <div class="drop-zone" id="dz-coa">
+        <input type="file" id="input-coa" accept=".pdf" />
+        <div class="drop-icon">📊</div>
+        <div class="drop-text-main">Drop your COA PDF</div>
+        <div class="drop-text-sub">Single file · PDF only</div>
+        <div class="file-list" id="coa-file-list"></div>
+      </div>
+      <div id="coa-status" style="margin-top:10px; font-family:var(--mono); font-size:.72rem; color:var(--muted);"></div>
+    </div>
+
+    <!-- Invoice Upload -->
+    <div class="card">
+      <div class="card-label"><span class="dot cyan"></span> Invoices</div>
+      <div class="drop-zone cyan" id="dz-invoices">
+        <input type="file" id="input-invoices" accept=".pdf" multiple />
+        <div class="drop-icon">🧾</div>
+        <div class="drop-text-main">Drop invoice PDFs</div>
+        <div class="drop-text-sub">Up to 5 files · PDF only</div>
+        <div class="file-list" id="invoice-file-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Process Button -->
+  <div class="process-row">
+    <button id="btn-process" disabled>
+      <span class="spinner"></span>
+      Run Classification
+    </button>
+    <div class="process-hint" id="process-hint">Upload both files to begin</div>
+  </div>
+
+  <!-- Lower Grid: COA Tree + Results -->
+  <div class="lower-grid">
+
+    <!-- COA Panel -->
+    <div id="coa-panel">
+      <div class="section-title">COA Hierarchy</div>
+      <div id="coa-tree-wrap">
+        <div class="tree-empty">COA tree will appear here after upload</div>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div id="results-panel">
+      <div id="batch-banner"></div>
+      <div class="section-title">Classification Results</div>
+      <div id="results-area">
+        <div class="results-empty" id="results-empty">Results will appear here as invoices are processed</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = '';  // same origin; change to 'http://localhost:8000' if serving separately
+
+// ── State ──────────────────────────────────────────────────────────────────
+let coaId = null;
+let invoiceFiles = [];
+let processing = false;
+let doneCount = 0;
+let totalCount = 0;
+
+// ── Elements ───────────────────────────────────────────────────────────────
+const dzCoa = document.getElementById('dz-coa');
+const dzInvoices = document.getElementById('dz-invoices');
+const inputCoa = document.getElementById('input-coa');
+const inputInvoices = document.getElementById('input-invoices');
+const coaFileList = document.getElementById('coa-file-list');
+const invoiceFileList = document.getElementById('invoice-file-list');
+const btnProcess = document.getElementById('btn-process');
+const processHint = document.getElementById('process-hint');
+const coaStatus = document.getElementById('coa-status');
+const coaTreeWrap = document.getElementById('coa-tree-wrap');
+const resultsArea = document.getElementById('results-area');
+const resultsEmpty = document.getElementById('results-empty');
+const batchBanner = document.getElementById('batch-banner');
+const progressBar = document.getElementById('top-progress');
+const progressFill = document.getElementById('top-progress-fill');
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info', duration = 3500) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-area').appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+// ── File chip ──────────────────────────────────────────────────────────────
+function fileChip(name, size) {
+  const kb = (size / 1024).toFixed(0);
+  return `<div class="file-chip"><span class="icon">📄</span><span class="name">${name}</span><span class="size">${kb} KB</span></div>`;
+}
+
+// ── COA file handling ──────────────────────────────────────────────────────
+async function handleCoaFile(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    toast('COA must be a PDF file', 'error'); return;
+  }
+
+  coaFileList.innerHTML = fileChip(file.name, file.size);
+  dzCoa.classList.add('has-file');
+  coaStatus.textContent = '⏳ Uploading & parsing COA…';
+  coaId = null;
+
+  const form = new FormData();
+  form.append('file', file);
+
+  try {
+    const res = await fetch(`${API}/upload/coa`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Upload failed');
+
+    coaId = data.coa_id;
+    coaStatus.textContent = `✅ ${data.message}`;
+    toast('COA parsed successfully', 'success');
+    renderTree(coaTreeWrap, data.tree);
+    checkReady();
+  } catch (e) {
+    coaStatus.textContent = `❌ ${e.message}`;
+    toast(e.message, 'error');
+    dzCoa.classList.remove('has-file');
+    coaFileList.innerHTML = '';
+  }
+}
+
+inputCoa.addEventListener('change', e => { if (e.target.files[0]) handleCoaFile(e.target.files[0]); });
+dzCoa.addEventListener('dragover', e => { e.preventDefault(); dzCoa.classList.add('dragover'); });
+dzCoa.addEventListener('dragleave', () => dzCoa.classList.remove('dragover'));
+dzCoa.addEventListener('drop', e => {
+  e.preventDefault(); dzCoa.classList.remove('dragover');
+  const files = [...e.dataTransfer.files].filter(f => f.name.toLowerCase().endsWith('.pdf'));
+  if (files[0]) handleCoaFile(files[0]);
+});
+
+// ── Invoice file handling ──────────────────────────────────────────────────
+function handleInvoiceFiles(files) {
+  const pdfs = [...files].filter(f => f.name.toLowerCase().endsWith('.pdf'));
+  if (!pdfs.length) { toast('Please select PDF files', 'error'); return; }
+  if (pdfs.length > 5) { toast('Maximum 5 invoices', 'error'); invoiceFiles = pdfs.slice(0, 5); }
+  else invoiceFiles = pdfs;
+
+  invoiceFileList.innerHTML = invoiceFiles.map(f => fileChip(f.name, f.size)).join('');
+  dzInvoices.classList.add('has-file');
+  checkReady();
+}
+
+inputInvoices.addEventListener('change', e => handleInvoiceFiles(e.target.files));
+dzInvoices.addEventListener('dragover', e => { e.preventDefault(); dzInvoices.classList.add('dragover'); });
+dzInvoices.addEventListener('dragleave', () => dzInvoices.classList.remove('dragover'));
+dzInvoices.addEventListener('drop', e => {
+  e.preventDefault(); dzInvoices.classList.remove('dragover');
+  handleInvoiceFiles(e.dataTransfer.files);
+});
+
+// ── Readiness ──────────────────────────────────────────────────────────────
+function checkReady() {
+  const ready = coaId && invoiceFiles.length > 0 && !processing;
+  btnProcess.disabled = !ready;
+  if (!coaId && invoiceFiles.length === 0) processHint.textContent = 'Upload both files to begin';
+  else if (!coaId) processHint.textContent = 'Waiting for COA to finish parsing…';
+  else if (!invoiceFiles.length) processHint.textContent = 'Add at least one invoice PDF';
+  else processHint.textContent = `${invoiceFiles.length} invoice(s) ready · click to classify`;
+}
+
+// ── Process ────────────────────────────────────────────────────────────────
+btnProcess.addEventListener('click', startProcessing);
+
+async function startProcessing() {
+  if (processing || !coaId || !invoiceFiles.length) return;
+  processing = true;
+  doneCount = 0;
+  totalCount = invoiceFiles.length;
+  btnProcess.disabled = true;
+  btnProcess.classList.add('loading');
+  btnProcess.querySelector('span:not(.spinner)') ? null : null;
+  batchBanner.style.display = 'none';
+
+  // Clear old results
+  resultsArea.innerHTML = '';
+  if (resultsEmpty) resultsEmpty.remove();
+
+  // Show progress bar
+  progressBar.style.display = 'block';
+  progressFill.style.width = '0%';
+
+  const form = new FormData();
+  form.append('coa_id', coaId);
+  invoiceFiles.forEach(f => form.append('invoices', f));
+
+  try {
+    const res = await fetch(`${API}/process`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Processing failed');
+
+    toast(`Batch started: ${data.invoice_count} invoice(s)`, 'info');
+
+    // Pre-create cards in "running" state
+    data.task_ids.forEach((tid, i) => {
+      createOrUpdateCard(tid, {
+        file_name: invoiceFiles[i]?.name || tid,
+        status: 'running',
+      });
+    });
+
+    // Open SSE stream
+    listenToSSE(data.batch_id, data.invoice_count);
+
+  } catch (e) {
+    toast(e.message, 'error');
+    resetProcessingState();
+  }
+}
+
+// ── SSE Listener ───────────────────────────────────────────────────────────
+function listenToSSE(batchId, total) {
+  const es = new EventSource(`${API}/status/${batchId}`);
+
+  es.onmessage = e => {
+    let payload;
+    try { payload = JSON.parse(e.data); } catch { return; }
+
+    if (payload.event === 'ping') return;
+
+    if (payload.event === 'invoice_started') {
+      createOrUpdateCard(payload.task_id, { file_name: payload.file_name, status: 'running' });
+    }
+
+    if (payload.event === 'invoice_parsed') {
+      updateCardMeta(payload.task_id, payload.vendor, payload.line_item_count);
+    }
+
+    if (payload.event === 'invoice_done') {
+      createOrUpdateCard(payload.task_id, payload);
+      doneCount++;
+      updateProgress();
+    }
+
+    if (payload.event === 'invoice_error') {
+      createOrUpdateCard(payload.task_id, payload);
+      doneCount++;
+      updateProgress();
+    }
+
+    if (payload.event === 'batch_complete') {
+      es.close();
+      const allDone = doneCount >= total;
+      batchBanner.style.display = 'block';
+      batchBanner.textContent = `✅ Batch complete — ${doneCount}/${total} invoice(s) classified`;
+      progressFill.style.width = '100%';
+      setTimeout(() => { progressBar.style.display = 'none'; }, 1000);
+      resetProcessingState();
+      toast('All invoices classified!', 'success', 5000);
+    }
+  };
+
+  es.onerror = () => {
+    es.close();
+    resetProcessingState();
+    toast('Connection lost', 'error');
+  };
+}
+
+function updateProgress() {
+  const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 95) : 0;
+  progressFill.style.width = `${pct}%`;
+}
+
+function resetProcessingState() {
+  processing = false;
+  btnProcess.classList.remove('loading');
+  checkReady();
+}
+
+// ── Result Card Rendering ──────────────────────────────────────────────────
+function createOrUpdateCard(taskId, data) {
+  let card = document.getElementById(`card-${taskId}`);
+  if (!card) {
+    card = document.createElement('div');
+    card.id = `card-${taskId}`;
+    card.className = 'result-card running';
+    resultsArea.appendChild(card);
+  }
+
+  const status = data.status || 'running';
+  card.className = `result-card ${status}`;
+
+  const badgeClass = { running: 'badge-running', done: 'badge-done', error: 'badge-error' }[status] || 'badge-running';
+  const badgeLabel = { running: 'Processing', done: 'Done', error: 'Error' }[status] || 'Running';
+
+  let leafHtml = '';
+  if (status === 'running') {
+    leafHtml = `<div class="rc-leaf shimmer"><div class="rc-leaf-label">Classifying…</div><div class="rc-leaf-value" style="color:var(--muted)">Agent is working</div></div>`;
+  } else if (status === 'done') {
+    leafHtml = `
+      <div class="rc-leaf">
+        <div class="rc-leaf-label">Selected Ledger</div>
+        <div class="rc-leaf-value">${escHtml(data.selected_leaf || '—')}</div>
+      </div>`;
+  } else if (status === 'error') {
+    leafHtml = `<div class="rc-error-msg">⚠ ${escHtml(data.error || 'Unknown error')}</div>`;
+  }
+
+  const vendor = data.vendor ? `<span>🏢 ${escHtml(data.vendor)}</span>` : '';
+  const lineItems = data.line_item_count != null ? `<span>📋 ${data.line_item_count} line item(s)</span>` : '';
+  const taskMeta = `<span style="color:var(--border-hi)">ID: ${taskId.slice(0,8)}…</span>`;
+
+  card.innerHTML = `
+    <div class="rc-header">
+      <div class="rc-filename">🧾 ${escHtml(data.file_name || taskId)}</div>
+      <span class="rc-status-badge ${badgeClass}">${badgeLabel}</span>
+    </div>
+    <div class="rc-meta">${vendor}${lineItems}${taskMeta}</div>
+    ${leafHtml}
+  `;
+}
+
+function updateCardMeta(taskId, vendor, lineItemCount) {
+  const card = document.getElementById(`card-${taskId}`);
+  if (!card) return;
+  const metaEl = card.querySelector('.rc-meta');
+  if (!metaEl) return;
+  const taskMeta = `<span style="color:var(--border-hi)">ID: ${taskId.slice(0,8)}…</span>`;
+  metaEl.innerHTML = (vendor ? `<span>🏢 ${escHtml(vendor)}</span>` : '') +
+    (lineItemCount != null ? `<span>📋 ${lineItemCount} line item(s)</span>` : '') +
+    taskMeta;
+}
+
+// ── COA Tree Renderer ──────────────────────────────────────────────────────
+function renderTree(container, tree, depth = 0) {
+  container.innerHTML = '';
+
+  if (!tree || Object.keys(tree).length === 0) {
+    container.innerHTML = '<div class="tree-empty">Empty hierarchy</div>';
+    return;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tree-wrap';
+  buildTreeNodes(wrap, tree, 0);
+  container.appendChild(wrap);
+}
+
+function buildTreeNodes(parent, obj, depth) {
+  for (const [key, val] of Object.entries(obj)) {
+    const isObj = val && typeof val === 'object' && !Array.isArray(val) && Object.keys(val).length > 0;
+
+    const node = document.createElement('div');
+    node.className = 'tree-node';
+
+    const row = document.createElement('div');
+    row.className = 'tree-row';
+    row.style.paddingLeft = `${depth * 14}px`;
+
+    const chevron = document.createElement('span');
+    chevron.className = `tree-chevron ${isObj ? '' : 'leaf'}`;
+    chevron.textContent = isObj ? '▶' : '';
+
+    const keySpan = document.createElement('span');
+    keySpan.className = `tree-key ${isObj ? '' : 'leaf-node'}`;
+    keySpan.textContent = key;
+
+    row.appendChild(chevron);
+    row.appendChild(keySpan);
+    node.appendChild(row);
+
+    if (isObj) {
+      const children = document.createElement('div');
+      children.className = 'tree-children collapsed';
+      buildTreeNodes(children, val, depth + 1);
+      node.appendChild(children);
+
+      row.addEventListener('click', () => {
+        const open = !children.classList.contains('collapsed');
+        children.classList.toggle('collapsed', open);
+        chevron.classList.toggle('open', !open);
+      });
+
+      // Auto-expand first level
+      if (depth === 0) {
+        children.classList.remove('collapsed');
+        chevron.classList.add('open');
+      }
+    }
+
+    parent.appendChild(node);
+  }
+}
+
+// ── Util ───────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+checkReady();
+</script>
+</body>
+</html>
