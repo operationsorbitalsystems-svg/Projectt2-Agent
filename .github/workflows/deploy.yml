@@ -38,7 +38,7 @@ jobs:
           REDIS_SSL: ${{ secrets.REDIS_SSL }}
           REDIS_SSL_VERIFY: ${{ secrets.REDIS_SSL_VERIFY }}
           # ── COA ───────────────────────────────────────────────────────────
-          COA_JSON_PATH: ${{ secrets.COA_JSON_PATH }}
+          # COA_JSON_PATH: ${{ secrets.COA_JSON_PATH }}
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
@@ -51,7 +51,7 @@ jobs:
             if [ ! -d /opt/backend ]; then
               sudo mkdir -p /opt/backend
               sudo chown ubuntu:ubuntu /opt/backend
-              git clone -b prod git@github.com:operationsorbitalsystems-svg/Backend-project2.git /opt/backend
+              git clone -b prod git@github.com:operationsorbitalsystems-svg/Projectt2-Agent.git /opt/backend
             fi
 
             cd /opt/backend
