@@ -32,6 +32,10 @@ from config import MODEL_ID, bedrock_client
 from .memory import initialize_memory, is_done
 from .tools import execute_tool
 from .expense_tree import EXPENSES_TREE
+from utils.logger import setup_logger
+
+
+logger = setup_logger()
 
 BASE_PATH = "/home/soham/Documents/orbtl/Hypro-2/output"
 
@@ -265,7 +269,7 @@ def run_agent(
         # total_input_tokens  += input_tokens
         # total_output_tokens += output_tokens
 
-            print(f"\n[Turn {turn}] Model:\n{model_text[:500]}")
+            logger.info(f"\n[Turn {turn}] Model:\n{model_text[:500]}")
 
             # Add assistant turn to history
             messages.append({
@@ -299,7 +303,7 @@ def run_agent(
             tool_result_texts: List[str] = []
 
             for tool_name, tool_input in tool_calls:
-                print(f"  → Tool call: {tool_name}({json.dumps(tool_input)})")
+                logger.info(f"  → Tool call: {tool_name}({json.dumps(tool_input)})")
 
                 with langfuse.start_as_current_observation(
                     as_type="span",
@@ -309,7 +313,7 @@ def run_agent(
                     result = execute_tool(tool_name, tool_input, memory, EXPENSES_TREE)
                     tool_span.update(output=result)
 
-                print(f"  ← Result: {json.dumps(result)[:200]}")
+                logger.info(f"  ← Result: {json.dumps(result)[:200]}")
                 tool_result_texts.append(_format_tool_result(tool_name, result))
 
                 # Terminal — select_leaf was called successfully
@@ -322,7 +326,7 @@ def run_agent(
                             "log_entries": len(memory.log),
                         },
                     )
-                    print(f"\n✅ Selected: {memory.selected_leaf}")
+                    logger.info(f"\n✅ Selected: {memory.selected_leaf}")
                     return memory.selected_leaf  # type: ignore[return-value]
 
             # Inject all tool results back as next user message
