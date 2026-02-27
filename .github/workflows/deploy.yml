@@ -47,11 +47,19 @@ jobs:
           script: |
             set -e
 
-            # ── 1. Clone or pull ──────────────────────────────────────────────
-            if [ ! -d /opt/backend ]; then
+            # ── 1. Clone or pull ──────────────────────────────
+
+            if [ ! -d /opt/backend/.git ]; then
+              echo "Fresh clone..."
+              sudo rm -rf /opt/backend
               sudo mkdir -p /opt/backend
               sudo chown ubuntu:ubuntu /opt/backend
               git clone -b prod git@github.com:operationsorbitalsystems-svg/Projectt2-Agent.git /opt/backend
+            else
+              echo "Updating existing repo..."
+              cd /opt/backend
+              git fetch origin
+              git reset --hard origin/prod
             fi
 
             cd /opt/backend
