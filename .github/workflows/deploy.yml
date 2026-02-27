@@ -31,7 +31,7 @@ jobs:
           # ── Langfuse ──────────────────────────────────────────────────────
           LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
           LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
           # ── Redis ─────────────────────────────────────────────────────────
           REDIS_ENABLED: ${{ secrets.REDIS_ENABLED }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
@@ -43,7 +43,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
-          envs: MISTRAL_API_KEY,DEBUG,ENVIRONMENT,SERVICE_NAME,LOG_CLOUDWATCH_ENABLED,LOG_FILE_ENABLED,CW_LOG_GROUP,AWS_DEFAULT_REGION,AWS_ACCESS_KEY,AWS_SECRETE_KEY,BEDROCK_MODEL_ID,LANGFUSE_SECRET_KEY,LANGFUSE_PUBLIC_KEY,LANGFUSE_HOST,REDIS_ENABLED,REDIS_URL,REDIS_SSL,REDIS_SSL_VERIFY,COA_JSON_PATH
+          envs: MISTRAL_API_KEY,DEBUG,ENVIRONMENT,SERVICE_NAME,LOG_CLOUDWATCH_ENABLED,LOG_FILE_ENABLED,CW_LOG_GROUP,AWS_DEFAULT_REGION,AWS_ACCESS_KEY,AWS_SECRETE_KEY,BEDROCK_MODEL_ID,LANGFUSE_SECRET_KEY,LANGFUSE_PUBLIC_KEY,LANGFUSE_BASE_URL,REDIS_ENABLED,REDIS_URL,REDIS_SSL,REDIS_SSL_VERIFY,COA_JSON_PATH
           script: |
             set -e
 
@@ -90,7 +90,7 @@ jobs:
               echo "BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID}"
               echo "LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}"
               echo "LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}"
-              echo "LANGFUSE_HOST=${LANGFUSE_HOST}"
+              echo "LANGFUSE_BASE_URL=${LANGFUSE_BASE_URL}"
               echo "REDIS_ENABLED=${REDIS_ENABLED}"
               echo "REDIS_URL=${REDIS_URL}"
               echo "REDIS_SSL=${REDIS_SSL}"
