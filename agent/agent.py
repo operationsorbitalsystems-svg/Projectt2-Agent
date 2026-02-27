@@ -28,10 +28,10 @@ from typing import Any, Dict, List, Optional, Tuple
 from botocore.exceptions import ClientError
 from langfuse import get_client
 
-from config import EXPENSES_TREE, MODEL_ID, bedrock_client
+from config import MODEL_ID, bedrock_client
 from .memory import initialize_memory, is_done
 from .tools import execute_tool
-
+from .expense_tree import EXPENSES_TREE
 
 BASE_PATH = "/home/soham/Documents/orbtl/Hypro-2/output"
 

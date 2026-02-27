@@ -8,16 +8,11 @@ Single source of truth for:
   - The Expenses subtree from COA_parsed.json (loaded once, shared read-only)
 """
 
-import json
 import os
-import re
-from pathlib import Path
-from typing import Any, Dict
-
 import boto3
 from dotenv import load_dotenv
 from langfuse import get_client, Langfuse
-
+\
 # ── Load .env ─────────────────────────────────────────────────────────────────
 load_dotenv()
 
@@ -60,35 +55,8 @@ Langfuse(
 langfuse = get_client()
 
 
-# ── Load & extract Expenses subtree ───────────────────────────────────────────
-def _load_expenses_tree(path: str) -> Dict[str, Any]:
-    """
-    Load COA_parsed.json and return the 'Expenses' sub-dict.
-    Raises FileNotFoundError if path is wrong.
-    Raises KeyError if 'Expenses' is not found in hierarchy.
-    """
-    resolved = Path(path).resolve()
-    if not resolved.exists():
-        raise FileNotFoundError(f"COA JSON not found at: {resolved}")
-
-    with open(resolved) as f:
-        raw = json.load(f)
-
-    hierarchy: Dict[str, Any] = raw.get("hierarchy", {})
-
-    # # Case-insensitive match for "Expenses" top-level key
-    # pattern = re.compile(r"(?i)^\s*expenses\s*$")
-    # for key, value in hierarchy.items():
-    #     if pattern.match(key):
-    #         if not isinstance(value, dict) or not value:
-    #             raise ValueError(f"Expenses key '{key}' is empty or not a dict.")
-    #         return value
-
-    return hierarchy
 
     # raise KeyError("No 'Expenses' key found in COA hierarchy.")
 
-
 # Loaded once at import time — shared read-only across all threads
-EXPENSES_TREE: Dict[str, Any] = _load_expenses_tree(COA_JSON_PATH)
 
