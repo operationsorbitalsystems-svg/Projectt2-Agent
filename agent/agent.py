@@ -32,16 +32,15 @@ from config import MODEL_ID, bedrock_client
 from .memory import initialize_memory, is_done
 from .tools import execute_tool
 from utils.logger import setup_logger
+from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+PROMPT_PATH = BASE_DIR / "prompts" / "dr_system_prompt.txt"
 
 logger = setup_logger()
 
-BASE_PATH = "/home/soham/Documents/orbtl/Hypro-2/output"
-
-JSON_NAME = "45.json"
-
 # ── Safety cap ────────────────────────────────────────────────────────────────
-MAX_TURNS = 40  # max LLM round-trips per invoice
+MAX_TURNS = 30  # max LLM round-trips per invoice
 
 # ── Regex to extract JSON tool calls from model text output ───────────────────
 # Matches: ```json ... ```,  ``` ... ```, or ```tool_code ... ``` blocks
@@ -50,90 +49,97 @@ _TOOL_CALL_RE = re.compile(
     re.DOTALL | re.IGNORECASE,
 )
 
-# ── System prompt ─────────────────────────────────────────────────────────────
-SYSTEM_PROMPT_TEMPLATE = """\
-You are a Chart of Accounts (COA) navigation agent. Your job is to classify an \
-invoice by finding the correct leaf node (ledger account) in the Expenses tree.
 
-Invoice: {invoice_description}
-Vendor: {vendor_name}
-
-━━━ HOW THE TREE WORKS ━━━
-The tree is a hierarchy rooted at ["Expenses"]. Every node is either:
-  FOLDER — has children inside it (type: "folder")
-  LEAF   — a final ledger account, no children (type: "leaf")
-You must select a LEAF as your final answer.
-
-━━━ HOW TO CALL TOOLS ━━━
-Output EXACTLY ONE tool call per response, as a JSON block like this:
-
-```json
-{{"tool": "get_children", "input": {{"path": ["Expenses"]}}}}
-```
-
-Wait for the tool result before calling another tool.
-Do NOT call multiple tools in one response.
-Do NOT add any text after the JSON block when making a tool call.
-
-━━━ AVAILABLE TOOLS ━━━
-
-get_children — See the immediate children of any node you are at.
-  Input:  {{"path": ["Expenses", "some folder"]}}
-  Output: list of children with name, type (leaf/folder), state, leaf_count
-
-navigate_to — Move into a node OR backtrack to a parent/sibling you have seen before.
-  Input:  {{"path": ["Expenses", "some folder"]}}
-  Cannot navigate to EXHAUSTED or DISCARDED nodes.
-
-update_node_states — Mark nodes as DISCARDED (skip by name) or EXHAUSTED (explored, empty).
-  Input:  {{"updates": [{{"path": ["Expenses", "X"], "state": "DISCARDED"}}, ...]}}
-  Discard irrelevant branches immediately to save turns.
-
-get_leaf_nodes — Get ALL leaf names under a path in one call.
-  Input:  {{"path": ["Expenses", "some folder"]}}
-  Use this once you are confident you are in the right subtree.
-
-get_unexplored_paths — See everything still left to try. Use when unsure what's next.
-  Input:  {{}}
-
-select_leaf — YOUR FINAL ANSWER. Only call when certain.
-  Input:  {{"path": ["Expenses", "...", "...", "direct parent folder"], "leaf_name": "Exact Leaf Name"}}
-  
-  CRITICAL: `path` must be the COMPLETE path from "Expenses" down to the 
-  IMMEDIATE parent folder of the leaf. Every intermediate folder must be 
-  included. The leaf's direct parent is the last element in the path.
-  
-  Example — to select "Freight Outward ? General" which lives under:
-  Expenses → Indirect Expenses → Other Indirect Expenses → 
-    Selling and Distribution Expenses → Distribution Expenses
-  
-  Correct call:
-  {{
-    "path": ["Expenses", "Indirect Expenses", "Other Indirect Expenses", 
-             "Selling and Distribution Expenses", "Distribution Expenses"],
-    "leaf_name": "Freight Outward ? General"
-  }}
-
-━━━ NODE STATES ━━━
-  UNEXPLORED  → Seen but not entered. Should explore.
-  IN_PROGRESS → Currently being explored.
-  EXHAUSTED   → Entered, nothing suitable found. Do NOT re-enter.
-  DISCARDED   → Skipped by name as irrelevant. Do NOT enter.
-
-━━━ STRATEGY ━━━
-1. Call get_children on ["Expenses"] to see the top-level options.
-2. Immediately DISCARD obviously irrelevant branches (e.g. Depreciation, Tax Expenses for a travel invoice).
-3. Navigate into the most relevant branch.
-4. Once you believe you are in the right area, call get_leaf_nodes.
-5. If there are ≤15 leaves, pick the best one and call select_leaf.
-6. If you went the wrong way, mark it EXHAUSTED, navigate_to a sibling or parent, and try again.
-7. If lost, call get_unexplored_paths to see what is left.
-
-BEGIN: Call get_children with path ["Expenses"] now.
-"""
 
 
 def _build_system_prompt(invoice_description: str, vendor_name: Optional[str]) -> str:
+    
+    with open(PROMPT_PATH) as f:
+        SYSTEM_PROMPT_TEMPLATE = f.read()
+
+
+
+    # ── System prompt ─────────────────────────────────────────────────────────────
+    tool_info = """\
+
+    ━━━ HOW THE TREE WORKS ━━━
+    The tree is a hierarchy rooted at ["Expenses"]. Every node is either:
+    FOLDER — has children inside it (type: "folder")
+    LEAF   — a final ledger account, no children (type: "leaf")
+    You must select a LEAF as your final answer.
+
+    ━━━ HOW TO CALL TOOLS ━━━
+    Output EXACTLY ONE tool call per response, as a JSON block like this:
+
+    ```json
+    {{"tool": "get_children", "input": {{"path": ["Expenses"]}}}}
+    ```
+
+    Wait for the tool result before calling another tool.
+    Do NOT call multiple tools in one response.
+    Do NOT add any text after the JSON block when making a tool call.
+
+    ━━━ AVAILABLE TOOLS ━━━
+
+    get_children — See the immediate children of any node you are at.
+    Input:  {{"path": ["Expenses", "some folder"]}}
+    Output: list of children with name, type (leaf/folder), state, leaf_count
+
+    navigate_to — Move into a node OR backtrack to a parent/sibling you have seen before.
+    Input:  {{"path": ["Expenses", "some folder"]}}
+    Cannot navigate to EXHAUSTED or DISCARDED nodes.
+
+    update_node_states — Mark nodes as DISCARDED (skip by name) or EXHAUSTED (explored, empty).
+    Input:  {{"updates": [{{"path": ["Expenses", "X"], "state": "DISCARDED"}}, ...]}}
+    Discard irrelevant branches immediately to save turns.
+
+    get_leaf_nodes — Get ALL leaf names under a path in one call.
+    Input:  {{"path": ["Expenses", "some folder"]}}
+    Use this once you are confident you are in the right subtree.
+
+    get_unexplored_paths — See everything still left to try. Use when unsure what's next.
+    Input:  {{}}
+
+    select_leaf — YOUR FINAL ANSWER. Only call when certain.
+    Input:  {{"path": ["Expenses", "...", "...", "direct parent folder"], "leaf_name": "Exact Leaf Name"}}
+    
+    CRITICAL: `path` must be the COMPLETE path from "Expenses" down to the 
+    IMMEDIATE parent folder of the leaf. Every intermediate folder must be 
+    included. The leaf's direct parent is the last element in the path.
+    
+    Example — to select "Freight Outward ? General" which lives under:
+    Expenses → Indirect Expenses → Other Indirect Expenses → 
+        Selling and Distribution Expenses → Distribution Expenses
+    
+    Correct call:
+    {{
+        "path": ["Expenses", "Indirect Expenses", "Other Indirect Expenses", 
+                "Selling and Distribution Expenses", "Distribution Expenses"],
+        "leaf_name": "Freight Outward ? General"
+    }}
+
+    ━━━ NODE STATES ━━━
+    UNEXPLORED  → Seen but not entered. Should explore.
+    IN_PROGRESS → Currently being explored.
+    EXHAUSTED   → Entered, nothing suitable found. Do NOT re-enter.
+    DISCARDED   → Skipped by name as irrelevant. Do NOT enter.
+
+    ━━━ STRATEGY ━━━
+    1. Call get_children on ["Expenses"] to see the top-level options.
+    2. Immediately DISCARD obviously irrelevant branches (e.g. Depreciation, Tax Expenses for a travel invoice).
+    3. Navigate into the most relevant branch.
+    4. Once you believe you are in the right area, call get_leaf_nodes.
+    5. If there are ≤15 leaves, pick the best one and call select_leaf.
+    6. If you went the wrong way, mark it EXHAUSTED, navigate_to a sibling or parent, and try again.
+    7. If lost, call get_unexplored_paths to see what is left.
+
+    BEGIN: Call get_children with path ["Expenses"] now.
+    """
+
+
+
+    SYSTEM_PROMPT_TEMPLATE += "\n" + tool_info
+
     return SYSTEM_PROMPT_TEMPLATE.format(
         invoice_description=invoice_description,
         vendor_name=vendor_name or "Unknown",
@@ -203,7 +209,7 @@ def run_agent(
             "trace_id" : task_id,
         },
         as_type="span",
-        name=f"invoice-classification-{JSON_NAME}",
+        name=f"invoice-classification-{task_id}",
         input={"invoice_description": invoice_description, "vendor_name": vendor_name},
     ) as root_span:
         
