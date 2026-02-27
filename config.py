@@ -12,10 +12,17 @@ import os
 import boto3
 from dotenv import load_dotenv
 from langfuse import get_client, Langfuse
-\
+import asyncio
+
+
+
 # ── Load .env ─────────────────────────────────────────────────────────────────
 load_dotenv()
 
+
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
+
+mistral_semaphore = asyncio.Semaphore(5)
 
 AWS_REGION=os.getenv("AWS_DEFAULT_REGION","ap-south-1")
 AWS_ACCESS_KEY_ID     = os.getenv("AWS_ACCESS_KEY", "")
@@ -31,6 +38,8 @@ LOG_FILE_ENABLED       = os.getenv("LOG_FILE_ENABLED", "true").lower() == "true"
 CW_LOG_GROUP           = os.getenv("CW_LOG_GROUP", "/dr-agent/app")
 
 
+
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 # ── Constants from env ────────────────────────────────────────────────────────
 AWS_REGION    = os.getenv("AWS_REGION", "ap-south-1")

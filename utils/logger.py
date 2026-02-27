@@ -1,67 +1,31 @@
 import logging
 import logging.handlers
-import json
 from contextvars import ContextVar
 from pathlib import Path
-from datetime import datetime
 from typing import Optional
 from config import AWS_ACCESS_KEY_ID, AWS_REGION, AWS_SECRET_ACCESS_KEY
 
-# ── ContextVar ────────────────────────────────────────────────────────────────
-# Exported so worker loops and request middleware can set it.
-# Each asyncio Task gets its own context copy — setting this inside a task only
-# affects that task and all coroutines awaited within it.
+# ────────────────────────────────────────────────────────────────
+# ContextVar (for per-request / per-batch logging)
+# ────────────────────────────────────────────────────────────────
+
 batch_id_var: ContextVar[Optional[str]] = ContextVar("batch_id", default=None)
 
+# ────────────────────────────────────────────────────────────────
+# Context Filter
+# Injects batch_id into log records (if present)
+# ────────────────────────────────────────────────────────────────
 
-# ── JSON Formatter ────────────────────────────────────────────────────────────
-class JsonFormatter(logging.Formatter):
-    def format(self, record: logging.LogRecord) -> str:
-        log_record = {
-            "timestamp": datetime.utcfromtimestamp(record.created).isoformat() + "Z",
-            "level":     record.levelname,
-            "logger":    record.name,
-            "message":   record.getMessage(),
-            "module":    record.module,
-            "function":  record.funcName,
-            "line":      record.lineno,
-        }
-        # Context fields injected by BatchContextFilter
-        for field in ("batch_id", "environment", "service"):
-            val = getattr(record, field, None)
-            if val is not None:
-                log_record[field] = val
-        # Legacy extra={} dict pattern used by existing callers
-        if hasattr(record, "extra") and isinstance(record.extra, dict):
-            log_record.update(record.extra)
-        if record.exc_info:
-            log_record["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_record, default=str)
-
-
-# ── Context Filter ────────────────────────────────────────────────────────────
 class BatchContextFilter(logging.Filter):
-    """Injects batch_id, environment, and service onto every LogRecord."""
-
-    def __init__(self, environment: str, service: str):
-        super().__init__()
-        self.environment = environment
-        self.service = service
-
     def filter(self, record: logging.LogRecord) -> bool:
-        record.batch_id    = batch_id_var.get()  # None when no batch context
-        record.environment = self.environment
-        record.service     = self.service
+        record.batch_id = batch_id_var.get()
         return True
 
+# ────────────────────────────────────────────────────────────────
+# CloudWatch Handler Factory (Optional)
+# ────────────────────────────────────────────────────────────────
 
-# ── CloudWatch Handler Factory ────────────────────────────────────────────────
 def _make_cloudwatch_handler(log_group: str, region: str = AWS_REGION):
-    """
-    Returns a watchtower CloudWatchLogHandler subclass that routes each log
-    record to a per-batch_id stream, or "app/general" when no batch context
-    is active. Import is deferred so this module loads fine without boto3/watchtower.
-    """
     import boto3
     import watchtower
 
@@ -79,7 +43,7 @@ def _make_cloudwatch_handler(log_group: str, region: str = AWS_REGION):
 
     return _ContextVarStreamHandler(
         log_group_name=log_group,
-        log_stream_name="app/general",  # overridden by _get_stream_name above
+        log_stream_name="app/general",
         boto3_client=boto3_client,
         create_log_group=True,
         create_log_stream=True,
@@ -88,31 +52,30 @@ def _make_cloudwatch_handler(log_group: str, region: str = AWS_REGION):
         max_batch_count=1000,
     )
 
+# ────────────────────────────────────────────────────────────────
+# Global Logging Configuration
+# ────────────────────────────────────────────────────────────────
 
-# ── One-time global configuration ────────────────────────────────────────────
 _LOGGING_CONFIGURED = False
 ROOT_LOGGER_NAME = "dr-agent"
 
 
 def configure_logging(debug: bool = False) -> None:
     """
-    Configure the entire logging stack. Call ONCE from main.py before any
-    service module is imported. Safe to call multiple times (idempotent).
-
-    Sets up:
-    - "invoice_parser" root logger with console + optional file + optional CW
-    - uvicorn/uvicorn.access/uvicorn.error with the same handlers
-    - boto3/botocore silenced at WARNING to prevent log→CW→boto→log loops
+    Call ONCE from main.py before importing service modules.
+    Safe to call multiple times (idempotent).
     """
+
     global _LOGGING_CONFIGURED
     if _LOGGING_CONFIGURED:
         return
     _LOGGING_CONFIGURED = True
 
     from config import (
-        ENVIRONMENT, SERVICE_NAME,
-        LOG_CLOUDWATCH_ENABLED, LOG_FILE_ENABLED,
-        CW_LOG_GROUP, AWS_REGION,
+        LOG_FILE_ENABLED,
+        LOG_CLOUDWATCH_ENABLED,
+        CW_LOG_GROUP,
+        AWS_REGION,
     )
 
     level = logging.DEBUG if debug else logging.INFO
@@ -122,20 +85,35 @@ def configure_logging(debug: bool = False) -> None:
     root.setLevel(level)
     root.propagate = False
 
-    json_formatter = JsonFormatter()
-    context_filter = BatchContextFilter(environment=ENVIRONMENT, service=SERVICE_NAME)
+    # ─────────────────────────────────────────────
+    # Formatter (NON-JSON, readable format)
+    # Includes file name + line number
+    # ─────────────────────────────────────────────
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s - %(name)s - "
+        "%(filename)s:%(lineno)d - %(funcName)s() - "
+        "%(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    context_filter = BatchContextFilter()
     root.addFilter(context_filter)
 
-    # Console — always on
+    # ─────────────────────────────────────────────
+    # Console Handler
+    # ─────────────────────────────────────────────
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
-    console_handler.setFormatter(json_formatter)
+    console_handler.setFormatter(formatter)
     root.addHandler(console_handler)
 
-    # File — optional
+    # ─────────────────────────────────────────────
+    # File Handler (Optional)
+    # ─────────────────────────────────────────────
     if LOG_FILE_ENABLED:
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
+
         file_handler = logging.handlers.RotatingFileHandler(
             log_dir / "app.log",
             maxBytes=10 * 1024 * 1024,
@@ -143,21 +121,26 @@ def configure_logging(debug: bool = False) -> None:
             encoding="utf-8",
         )
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(json_formatter)
+        file_handler.setFormatter(formatter)
         root.addHandler(file_handler)
 
-    # CloudWatch — optional
+    # ─────────────────────────────────────────────
+    # CloudWatch (Optional)
+    # ─────────────────────────────────────────────
     if LOG_CLOUDWATCH_ENABLED:
         try:
             cw_handler = _make_cloudwatch_handler(CW_LOG_GROUP, AWS_REGION)
             cw_handler.setLevel(level)
-            cw_handler.setFormatter(json_formatter)
+            cw_handler.setFormatter(formatter)
             root.addHandler(cw_handler)
         except Exception as e:
-            root.warning(f"CloudWatch handler failed to initialise, continuing without it: {e}")
+            root.warning(
+                f"CloudWatch handler failed to initialise, continuing without it: {e}"
+            )
 
-    # Uvicorn loggers — attach same handlers + filter so access/error logs are
-    # also JSON and also land in the correct CloudWatch stream
+    # ─────────────────────────────────────────────
+    # Attach to Uvicorn
+    # ─────────────────────────────────────────────
     for name in ("uvicorn", "uvicorn.access", "uvicorn.error"):
         uv = logging.getLogger(name)
         uv.handlers = []
@@ -167,23 +150,24 @@ def configure_logging(debug: bool = False) -> None:
             uv.addHandler(h)
         uv.addFilter(context_filter)
 
-    # Silence noisy AWS internals to prevent recursive CloudWatch log loops
+    # Silence AWS internals
     for noisy in ("boto3", "botocore", "urllib3", "s3transfer"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
-# ── setup_logger (backward-compatible, now idempotent) ───────────────────────
-def setup_logger(name: str = ROOT_LOGGER_NAME, debug: bool = False) -> logging.Logger:
-    """
-    Returns a named child logger under "invoice_parser". Idempotent — never
-    clears or mutates handlers. All 14 existing call sites work unchanged:
+# ────────────────────────────────────────────────────────────────
+# Logger Factory
+# ────────────────────────────────────────────────────────────────
 
-      setup_logger()          → getLogger("invoice_parser")
-      setup_logger(debug=True)→ same (debug param accepted but ignored here;
-                                configure_logging() controls the level)
-      setup_logger(__name__)  → getLogger("invoice_parser.<module>")
-                                child propagates up, inheriting all handlers
+def setup_logger(name: str = ROOT_LOGGER_NAME) -> logging.Logger:
     """
+    Returns a logger under "dr-agent".
+
+    Usage:
+        logger = setup_logger(__name__)
+    """
+
     if not name or name == ROOT_LOGGER_NAME:
         return logging.getLogger(ROOT_LOGGER_NAME)
+
     return logging.getLogger(f"{ROOT_LOGGER_NAME}.{name}")

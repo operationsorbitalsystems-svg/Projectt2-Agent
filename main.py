@@ -1,27 +1,49 @@
 import json
 from agent.agent import BASE_PATH, JSON_NAME, run_agent
 from pathlib import Path
+from utils.logger import configure_logging
+from config import DEBUG
+from mistral_comp.invoice_parser import InvoiceParser
+import asyncio
 
-# ── CLI for quick testing ─────────────────────────────────────────────────────
-if __name__ == "__main__":
-    
-    json_path = BASE_PATH + "/" + JSON_NAME
-    
-    resolved = Path(json_path).resolve()
-    if not resolved.exists():
-        raise FileNotFoundError(f"COA JSON not found at: {resolved}")
+pdf_path  = "/home/soham/Documents/orbtl/Hypro-2/input/45.pdf"
 
-    with open(resolved) as f:
-        raw = json.load(f)
+invoice_parser = InvoiceParser()
+
+
+configure_logging(debug=DEBUG)
+
+
+async def main():
+
+    # json_path = BASE_PATH + "/" + JSON_NAME
+    
+    # resolved = Path(json_path).resolve()
+    # if not resolved.exists():
+    #     raise FileNotFoundError(f"COA JSON not found at: {resolved}")
+
+    # with open(resolved) as f:
+    #     raw = json.load(f)
         
-    line_items_array = raw["line_items"]
+    # line_items_array = raw["line_items"]
+    
+    # total_ledger_narration = ""
+    
+    # for line in line_items_array:
+    #     total_ledger_narration += line["description"] + "\n"
+        
+    success_or_fail, invoice_data, error_if_fail = await invoice_parser.parse_invoice(
+        pdf_path=pdf_path
+    )
+    
+    invoice = invoice_data.model_dump()
+    
+    line_items_array = invoice["line_items"]
     
     total_ledger_narration = ""
     
     for line in line_items_array:
         total_ledger_narration += line["description"] + "\n"
-        
-    
     
     TEST_INVOICES = [
         # "16/05/2025 Local travel at site - Hotel to Site To and fro - AMC/SAS Site Visit",
@@ -38,3 +60,11 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"→ ERROR  : {e}")
     print("\nDone.")
+
+
+
+# ── CLI for quick testing ─────────────────────────────────────────────────────
+if __name__ == "__main__":
+    
+    asyncio.run(main())
+    

@@ -1,4 +1,6 @@
-from pydantic import field_serializer, field_validator
+from pydantic import field_serializer, field_validator, BaseModel
+from pydantic import BaseModel, model_validator
+from typing import List, Optional
 import re
 from utils.logger import setup_logger
 
@@ -42,8 +44,7 @@ class InvoiceLineItem(BaseModel):
     amount: float
 
 
-from pydantic import BaseModel, model_validator
-from typing import List, Optional
+
 
 class InvoiceData(BaseModel):
     header: InvoiceHeader
