@@ -1,77 +1,86 @@
-import json
-from agent.agent import BASE_PATH, JSON_NAME, run_agent
-from pathlib import Path
+"""
+main.py
+───────
+Entry point for invoice classification via the COA agent queue.
+
+Flow:
+  1. Parse the invoice PDF → extract line items
+  2. Start background agent workers
+  3. Enqueue each line item as a separate task
+  4. Wait for all results
+  5. Print / return the selected ledger per line item
+"""
+
+import asyncio
+import uuid
+
 from utils.logger import configure_logging
 from config import DEBUG
 from mistral_comp.invoice_parser import InvoiceParser
-import asyncio
+from agent.agent_qeue import get_agent_queue, AgentQueue
+from agent.expense_tree import EXPENSES_TREE
+from pathlib import Path
 
-pdf_path  = "/home/soham/Documents/orbtl/Hypro-2/input/45.pdf"
+# ── Config ────────────────────────────────────────────────────────────────────
+PDF_PATH = "/home/soham/Documents/orbtl/Hypro-2/input/45.pdf"
+N_WORKERS = 3   # concurrent agent workers (each does multi-turn Bedrock calls)
+
+configure_logging(debug=DEBUG)
 
 invoice_parser = InvoiceParser()
 
 
-configure_logging(debug=DEBUG)
-
-
+# ── Main ──────────────────────────────────────────────────────────────────────
 async def main():
 
-    # json_path = BASE_PATH + "/" + JSON_NAME
-    
-    # resolved = Path(json_path).resolve()
-    # if not resolved.exists():
-    #     raise FileNotFoundError(f"COA JSON not found at: {resolved}")
+    # 1. Start background workers FIRST (before any awaits that take time)
+    agent_queue = get_agent_queue()
+    agent_queue.start_workers(N_WORKERS)
 
-    # with open(resolved) as f:
-    #     raw = json.load(f)
-        
-    # line_items_array = raw["line_items"]
+    p = Path(PDF_PATH)
     
-    # total_ledger_narration = ""
+    file_name = p.name
+
+    # 2. Parse the invoice
+    success, invoice_data, error = await invoice_parser.parse_invoice(pdf_path=PDF_PATH)
+
+    if not success:
+        print(f"❌ Invoice parsing failed: {error}")
+        return
+
+    invoice    = invoice_data.model_dump()
+    vendor     = invoice_data.header.vendor_name
+    line_items = invoice["line_items"]
+    batch_id   = uuid.uuid4().hex
+    task_id = uuid.uuid4().hex
+
+    print(f"📄 Invoice parsed — {len(line_items)} line item(s), vendor: {vendor}")
     
-    # for line in line_items_array:
-    #     total_ledger_narration += line["description"] + "\n"
+    total = ""
+    for l in line_items:
+        total += l["description"] + "\n"
         
-    success_or_fail, invoice_data, error_if_fail = await invoice_parser.parse_invoice(
-        pdf_path=pdf_path
+
+    # 3. Enqueue every line item as its own task
+    #    Each gets a unique task_id; they all share the same batch_id
+    task_id = await agent_queue.enqueue_request(
+        task_id=task_id,
+        batch_id=batch_id,
+        line_item=total,
+        file_name=file_name,
+        expenses_tree=EXPENSES_TREE,
     )
-    
-    if success_or_fail:
-        
-        invoice = invoice_data.model_dump()
-        
-        vendor_name = invoice_data.header.vendor_name
-        
-        line_items_array = invoice["line_items"]
-        
-        total_ledger_narration = ""
-        
-        for line in line_items_array:
-            total_ledger_narration += line["description"] + "\n"
-        
-        TEST_INVOICES = [
-            # "16/05/2025 Local travel at site - Hotel to Site To and fro - AMC/SAS Site Visit",
-            total_ledger_narration
-        ]
 
-        print("COA Classification Agent — Test Run")
-        print("=" * 50)
-        for desc in TEST_INVOICES:
-            print(f"\nInvoice : {desc}")
-            try:
-                result = run_agent(desc, vendor_name)
-                print(f"→ Ledger : {result}")
-            except Exception as e:
-                print(f"→ ERROR  : {e}")
-        print("\nDone.")
-        
-    else:
-        print("error while mistrakl parsing")
+    print(f"📦 Enqueued {task_id} task(s) under batch {batch_id}")
+
+    # 4. Wait for all results
+    response = await agent_queue.wait_for_response(task_id, timeout=600)
+
+    # 5. Print results aligned with original line items
+    print("\n── Results ──────────────────────────────────────────────────")
+    print(response.selected_leaf)
 
 
-
-# ── CLI for quick testing ─────────────────────────────────────────────────────
+# ── CLI ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    
     asyncio.run(main())
-    

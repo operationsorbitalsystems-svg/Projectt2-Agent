@@ -31,7 +31,6 @@ from langfuse import get_client
 from config import MODEL_ID, bedrock_client
 from .memory import initialize_memory, is_done
 from .tools import execute_tool
-from .expense_tree import EXPENSES_TREE
 from utils.logger import setup_logger
 
 
@@ -185,21 +184,32 @@ def _format_tool_result(tool_name: str, result: Dict[str, Any]) -> str:
 
 def run_agent(
     invoice_description: str,
+    expense_tree: Dict[str, Any],
+    batch_id: str,
+    task_id: str,
     vendor_name: Optional[str] = None,
+
 ) -> str:
     """
     Classify a single invoice. Returns the selected ledger name.
     Raises RuntimeError if classification fails or MAX_TURNS exceeded.
     """
     langfuse = get_client()
-    memory   = initialize_memory(EXPENSES_TREE, invoice_description, vendor_name)
+    memory   = initialize_memory(expense_tree, invoice_description, vendor_name)
     system_prompt = _build_system_prompt(invoice_description, vendor_name)
 
     with langfuse.start_as_current_observation(
+        trace_context= {
+            "trace_id" : task_id,
+        },
         as_type="span",
         name=f"invoice-classification-{JSON_NAME}",
         input={"invoice_description": invoice_description, "vendor_name": vendor_name},
     ) as root_span:
+        
+        root_span.update_trace(
+            session_id= batch_id
+        )
 
         root_span.update_trace(
             input={"invoice": invoice_description, "vendor": vendor_name},
@@ -310,7 +320,7 @@ def run_agent(
                     name=f"tool:{tool_name}",
                     input={"tool": tool_name, "input": tool_input},
                 ) as tool_span:
-                    result = execute_tool(tool_name, tool_input, memory, EXPENSES_TREE)
+                    result = execute_tool(tool_name, tool_input, memory, expense_tree)
                     tool_span.update(output=result)
 
                 logger.info(f"  ← Result: {json.dumps(result)[:200]}")

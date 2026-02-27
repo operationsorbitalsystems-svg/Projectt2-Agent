@@ -13,6 +13,8 @@ import boto3
 from dotenv import load_dotenv
 from langfuse import get_client, Langfuse
 import asyncio
+import redis
+import redis.asyncio as redis_async
 
 
 
@@ -65,7 +67,43 @@ langfuse = get_client()
 
 
 
-    # raise KeyError("No 'Expenses' key found in COA hierarchy.")
 
-# Loaded once at import time — shared read-only across all threads
+# Session Management
+REDIS_ENABLED = os.getenv("REDIS_ENABLED", "true").lower() == "true"
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+REDIS_SSL = os.getenv("REDIS_SSL", "false").lower() == "true"
+REDIS_SSL_VERIFY = os.getenv("REDIS_SSL_VERIFY", "true").lower() == "true"
+
+# Initialize Redis client for task queue
+redis_client = None
+redis_sync_client = None
+
+
+if REDIS_ENABLED:
+    try:
+        redis_kwargs = {
+            "decode_responses": True
+        }
+
+        # Only needed if SSL and you want to disable verification
+        if REDIS_URL.startswith("rediss://") and not REDIS_SSL_VERIFY:
+            redis_kwargs["ssl_cert_reqs"] = None
+
+        redis_sync_client = redis.from_url(
+            REDIS_URL,
+            **redis_kwargs
+        )
+
+        redis_client = redis_async.from_url(
+            REDIS_URL,
+            **redis_kwargs
+        )
+
+        print(redis_sync_client.ping())
+
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to connect to Redis: {e}")
+        
+
 
