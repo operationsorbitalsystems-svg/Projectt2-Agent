@@ -359,10 +359,37 @@ def classify_batch(
     return results
 
 
+BASE_PATH = "/home/soham/Documents/orbtl/Hypro-2/output"
+
+JSON_NAME = "57.json"
+
+
+from pathlib import Path
+
 # ── CLI for quick testing ─────────────────────────────────────────────────────
 if __name__ == "__main__":
+    
+    json_path = BASE_PATH + "/" + JSON_NAME
+    
+    resolved = Path(json_path).resolve()
+    if not resolved.exists():
+        raise FileNotFoundError(f"COA JSON not found at: {resolved}")
+
+    with open(resolved) as f:
+        raw = json.load(f)
+        
+    line_items_array = raw["line_items"]
+    
+    total_ledger_narration = ""
+    
+    for line in line_items_array:
+        total_ledger_narration += line["description"] + "\n"
+        
+    
+    
     TEST_INVOICES = [
         # "16/05/2025 Local travel at site - Hotel to Site To and fro - AMC/SAS Site Visit",
+        total_ledger_narration
     ]
 
     print("COA Classification Agent — Test Run")
