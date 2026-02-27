@@ -13,6 +13,7 @@ Endpoints:
 import asyncio
 import json
 import logging
+import shutil
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -35,8 +36,7 @@ from coa_utils.main import parse_coa
 configure_logging(debug=DEBUG)
 log = logging.getLogger(__name__)
 
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+TMP_ROOT = Path("/tmp")   # all uploads live under /tmp/<batch_id>/
 
 app = FastAPI(title="Invoice COA Classifier", version="1.0.0")
 
@@ -79,6 +79,15 @@ def _build_coa_tree(pdf_path: str) -> Dict[str, Any]:
     coa_tree = parse_coa(pdf_path)
     raw = coa_tree.model_dump(mode="json")
     return raw.get("hierarchy", {})
+
+
+def _delete_dir(path: Path) -> None:
+    """Remove a directory tree, silently ignoring errors."""
+    try:
+        shutil.rmtree(path, ignore_errors=True)
+        log.info("Deleted temp dir: %s", path)
+    except Exception as exc:
+        log.warning("Could not delete %s: %s", path, exc)
 
 
 async def _process_invoice(
@@ -169,6 +178,9 @@ async def _process_invoice(
             finished = sum(1 for r in results.values() if r.get("status") in ("done", "error"))
             if finished >= total_tasks:
                 _batch_results[batch_id]["status"] = "complete"
+                # ── Delete the batch upload folder now that everything is processed ──
+                batch_dir = TMP_ROOT / batch_id
+                await asyncio.get_event_loop().run_in_executor(None, _delete_dir, batch_dir)
                 if queue:
                     await queue.put({"event": "batch_complete", "batch_id": batch_id})
 
@@ -187,7 +199,9 @@ async def upload_coa(file: UploadFile = File(...)):
         raise HTTPException(400, "COA file must be a PDF.")
 
     coa_id = uuid.uuid4().hex
-    dest = UPLOAD_DIR / f"coa_{coa_id}.pdf"
+    coa_dir = TMP_ROOT / f"coa_{coa_id}"
+    coa_dir.mkdir(parents=True, exist_ok=True)
+    dest = coa_dir / "coa.pdf"
     await _save_upload(file, dest)
 
     try:
@@ -195,10 +209,13 @@ async def upload_coa(file: UploadFile = File(...)):
             None, _build_coa_tree, str(dest)
         )
     except Exception as exc:
-        dest.unlink(missing_ok=True)
+        await asyncio.get_event_loop().run_in_executor(None, _delete_dir, coa_dir)
         raise HTTPException(500, f"COA parsing failed: {exc}")
+    finally:
+        # Always clean up the COA file — tree is now in memory
+        await asyncio.get_event_loop().run_in_executor(None, _delete_dir, coa_dir)
 
-    _coa_store[coa_id] = {"tree": tree, "path": str(dest)}
+    _coa_store[coa_id] = {"tree": tree}
     log.info("COA uploaded: coa_id=%s keys=%s", coa_id, list(tree.keys())[:5])
 
     return COAUploadResponse(
@@ -228,11 +245,14 @@ async def process_invoices(
     batch_id = uuid.uuid4().hex
     task_ids: List[str] = []
 
-    # Save invoices & register batch
+    # ── Create /tmp/{batch_id}/ and save all invoices there ──────────────────
+    batch_dir = TMP_ROOT / batch_id
+    batch_dir.mkdir(parents=True, exist_ok=True)
+
     saved: List[tuple] = []
     for invoice_file in invoices:
         task_id = uuid.uuid4().hex
-        dest = UPLOAD_DIR / f"invoice_{task_id}.pdf"
+        dest = batch_dir / f"{task_id}_{invoice_file.filename}"
         await _save_upload(invoice_file, dest)
         saved.append((task_id, str(dest), invoice_file.filename))
         task_ids.append(task_id)

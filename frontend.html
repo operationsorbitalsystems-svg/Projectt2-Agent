@@ -590,7 +590,10 @@
     <!-- Results Panel -->
     <div id="results-panel">
       <div id="batch-banner"></div>
-      <div class="section-title">Classification Results</div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+        <div class="section-title" style="margin-bottom:0; flex:1;">Classification Results</div>
+        <div id="batch-id-chip" style="display:none; font-family:var(--mono); font-size:.68rem; color:var(--accent2); background:rgba(6,182,212,.08); border:1px solid rgba(6,182,212,.2); border-radius:6px; padding:4px 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px;" title=""></div>
+      </div>
       <div id="results-area">
         <div class="results-empty" id="results-empty">Results will appear here as invoices are processed</div>
       </div>
@@ -623,8 +626,16 @@ const coaTreeWrap = document.getElementById('coa-tree-wrap');
 const resultsArea = document.getElementById('results-area');
 const resultsEmpty = document.getElementById('results-empty');
 const batchBanner = document.getElementById('batch-banner');
+const batchIdChip = document.getElementById('batch-id-chip');
 const progressBar = document.getElementById('top-progress');
 const progressFill = document.getElementById('top-progress-fill');
+
+// ── Batch ID chip ──────────────────────────────────────────────────────────
+function showBatchId(batchId) {
+  batchIdChip.style.display = 'block';
+  batchIdChip.textContent = `batch: ${batchId}…`;
+  batchIdChip.title = `Full batch ID: ${batchId}`;
+}
 
 // ── Toast ──────────────────────────────────────────────────────────────────
 function toast(msg, type = 'info', duration = 3500) {
@@ -724,6 +735,7 @@ async function startProcessing() {
   btnProcess.classList.add('loading');
   btnProcess.querySelector('span:not(.spinner)') ? null : null;
   batchBanner.style.display = 'none';
+  batchIdChip.style.display = 'none';  // hide previous batch id
 
   // Clear old results
   resultsArea.innerHTML = '';
@@ -743,6 +755,7 @@ async function startProcessing() {
     if (!res.ok) throw new Error(data.detail || 'Processing failed');
 
     toast(`Batch started: ${data.invoice_count} invoice(s)`, 'info');
+    showBatchId(data.batch_id);
 
     // Pre-create cards in "running" state
     data.task_ids.forEach((tid, i) => {
