@@ -51,8 +51,8 @@ COA_JSON_PATH = os.getenv("COA_JSON_PATH", "./COA_parsed.json")
 bedrock_client = boto3.client(
     "bedrock-runtime",
     region_name=AWS_REGION,
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
 )
 
 # ── Langfuse v3 client ────────────────────────────────────────────────────────
