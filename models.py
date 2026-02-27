@@ -4,7 +4,7 @@ from typing import List, Optional
 import re
 from utils.logger import setup_logger
 
-logger = setup_logger("models")
+logger = setup_logger()
 
 # === Invoice Data Models ===
 
