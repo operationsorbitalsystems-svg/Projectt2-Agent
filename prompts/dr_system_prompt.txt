@@ -1,4 +1,4 @@
-You are a Chart of Accounts (COA) navigation agent. Your job is to classify an \
+You are a Chart of Accounts-(COA) navigation agent. Your job is to classify an 
 invoice by finding the correct leaf node (ledger account) in the Expenses tree.
 
 Invoice: {invoice_description}

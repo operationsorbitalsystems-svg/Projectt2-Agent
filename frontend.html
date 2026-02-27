@@ -58,10 +58,45 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 32px 0 40px;
+    padding: 32px 0 32px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 48px;
+    margin-bottom: 0;
   }
+
+  /* ── Nav tabs ────────────────────────────────────────────── */
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    padding: 16px 0 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .nav-tab {
+    font-family: var(--mono);
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Pages ───────────────────────────────────────────────── */
+  .page { display: none; }
+  .page.active { display: block; }
 
   .logo-mark {
     width: 44px; height: 44px;
@@ -492,7 +527,180 @@
     width: 0%;
   }
 
-  /* ── Toasts ──────────────────────────────────────────────── */
+  /* ── Config Page ──────────────────────────────────────────── */
+  .config-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .config-header-left h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 4px;
+  }
+
+  .config-header-left p {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  .config-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-secondary {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border-hi);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .btn-secondary:hover { color: var(--text); border-color: var(--text); }
+
+  .btn-save {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: .85rem;
+    padding: 9px 22px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn-save:hover { box-shadow: 0 4px 18px rgba(245,158,11,.35); transform: translateY(-1px); }
+  .btn-save:disabled { background: var(--border-hi); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .prompt-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: border-color .2s;
+  }
+
+  .prompt-block:focus-within { border-color: var(--border-hi); }
+
+  .prompt-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.02);
+  }
+
+  .prompt-block-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .prompt-block-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .prompt-block-name {
+    font-family: var(--mono);
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .prompt-block-path {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--muted);
+    padding: 3px 8px;
+    background: rgba(255,255,255,.04);
+    border-radius: 4px;
+  }
+
+  .prompt-meta {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--muted);
+  }
+
+  .prompt-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: .8rem;
+    line-height: 1.7;
+    padding: 18px;
+    resize: vertical;
+    min-height: 280px;
+    tab-size: 2;
+  }
+
+  .prompt-textarea::placeholder { color: var(--muted); }
+
+  .prompt-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    border-top: 1px solid var(--border);
+    background: rgba(255,255,255,.01);
+  }
+
+  .prompt-char-count {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--muted);
+  }
+
+  .prompt-dirty-badge {
+    display: none;
+    font-family: var(--mono);
+    font-size: .62rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(249,115,22,.15);
+    color: var(--orange);
+    border: 1px solid rgba(249,115,22,.25);
+  }
+
+  .prompt-dirty-badge.visible { display: inline-block; }
+
+  .save-status {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .save-status.saved { color: var(--green); }
+  .save-status.error { color: var(--red); }
   #toast-area {
     position: fixed; bottom: 24px; right: 24px;
     display: flex; flex-direction: column; gap: 8px;
@@ -536,6 +744,21 @@
     </div>
     <div class="header-badge">Orbital Systems</div>
   </header>
+
+  <!-- Nav Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-page="classifier">
+      <span>🧾</span> Classifier
+    </button>
+    <button class="nav-tab" data-page="config">
+      <span>⚙️</span> Config
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- PAGE: Classifier                                        -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="page active" id="page-classifier">
 
   <!-- Upload Zone -->
   <div class="upload-grid">
@@ -600,6 +823,32 @@
     </div>
 
   </div>
+  </div><!-- /page-classifier -->
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- PAGE: Config                                            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-config">
+    <div class="config-header">
+      <div class="config-header-left">
+        <h2>Agent Prompts</h2>
+        <p>Edit system prompts below — changes are written to disk and applied on next run</p>
+      </div>
+      <div class="config-actions">
+        <div class="save-status" id="save-status"></div>
+        <button class="btn-secondary" id="btn-reset-prompts">↺ Reset Changes</button>
+        <button class="btn-save" id="btn-save-prompts" disabled>
+          <span>💾</span> Save Prompts
+        </button>
+      </div>
+    </div>
+    <div id="prompt-blocks-area">
+      <div style="font-family:var(--mono); font-size:.78rem; color:var(--muted); padding:40px 0; text-align:center;">
+        ⏳ Loading prompts…
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -956,6 +1205,166 @@ function escHtml(str) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 checkReady();
+
+// ── Page Navigation ────────────────────────────────────────────────────────
+const navTabs = document.querySelectorAll('.nav-tab');
+const pages = document.querySelectorAll('.page');
+
+navTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.page;
+    navTabs.forEach(t => t.classList.toggle('active', t.dataset.page === target));
+    pages.forEach(p => p.classList.toggle('active', p.id === `page-${target}`));
+    if (target === 'config') loadPrompts();
+  });
+});
+
+// ── Config / Prompts ────────────────────────────────────────────────────────
+const PROMPT_LABELS = {
+  dr_system_prompt: { label: 'DR Agent System Prompt', path: 'prompts/dr_system_prompt.txt' },
+};
+
+let promptsOriginal = {};   // key → original content (for reset)
+let promptsDirty = {};      // key → bool
+
+const promptBlocksArea = document.getElementById('prompt-blocks-area');
+const btnSavePrompts = document.getElementById('btn-save-prompts');
+const btnResetPrompts = document.getElementById('btn-reset-prompts');
+const saveStatus = document.getElementById('save-status');
+
+async function loadPrompts() {
+  promptBlocksArea.innerHTML = `<div style="font-family:var(--mono); font-size:.78rem; color:var(--muted); padding:40px 0; text-align:center;">⏳ Loading prompts…</div>`;
+  try {
+    const res = await fetch(`${API}/prompts`);
+    if (!res.ok) throw new Error('Failed to load prompts');
+    const data = await res.json();
+    promptsOriginal = { ...data };
+    promptsDirty = {};
+    renderPromptBlocks(data);
+  } catch (e) {
+    promptBlocksArea.innerHTML = `<div style="font-family:var(--mono); font-size:.78rem; color:var(--red); padding:40px 0; text-align:center;">❌ ${e.message}</div>`;
+    toast(e.message, 'error');
+  }
+}
+
+function renderPromptBlocks(data) {
+  promptBlocksArea.innerHTML = '';
+  for (const [key, content] of Object.entries(data)) {
+    const meta = PROMPT_LABELS[key] || { label: key, path: `prompts/${key}.txt` };
+    const block = document.createElement('div');
+    block.className = 'prompt-block';
+    block.id = `prompt-block-${key}`;
+    block.innerHTML = `
+      <div class="prompt-block-header">
+        <div class="prompt-block-title">
+          <span class="dot"></span>
+          <span class="prompt-block-name">${escHtml(meta.label)}</span>
+          <span class="prompt-block-path">${escHtml(meta.path)}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="prompt-dirty-badge" id="dirty-${key}">● unsaved</span>
+          <span class="prompt-meta" id="chars-label-${key}">${content.length.toLocaleString()} chars</span>
+        </div>
+      </div>
+      <textarea
+        class="prompt-textarea"
+        id="prompt-ta-${key}"
+        spellcheck="false"
+        autocorrect="off"
+        autocapitalize="off"
+      >${escHtml(content)}</textarea>
+      <div class="prompt-footer">
+        <span class="prompt-char-count" id="chars-${key}">${content.length.toLocaleString()} characters · ${content.split('\n').length} lines</span>
+      </div>
+    `;
+    promptBlocksArea.appendChild(block);
+
+    const ta = block.querySelector(`#prompt-ta-${key}`);
+    ta.addEventListener('input', () => onPromptInput(key, ta));
+  }
+  updateSaveButton();
+}
+
+function onPromptInput(key, ta) {
+  const dirty = ta.value !== promptsOriginal[key];
+  promptsDirty[key] = dirty;
+
+  const dirtyBadge = document.getElementById(`dirty-${key}`);
+  const charsEl = document.getElementById(`chars-${key}`);
+  const val = ta.value;
+
+  if (dirtyBadge) dirtyBadge.classList.toggle('visible', dirty);
+  if (charsEl) charsEl.textContent = `${val.length.toLocaleString()} characters · ${val.split('\n').length} lines`;
+
+  updateSaveButton();
+  saveStatus.className = 'save-status';
+  saveStatus.textContent = '';
+}
+
+function updateSaveButton() {
+  const anyDirty = Object.values(promptsDirty).some(Boolean);
+  btnSavePrompts.disabled = !anyDirty;
+}
+
+btnResetPrompts.addEventListener('click', () => {
+  if (!Object.values(promptsDirty).some(Boolean)) return;
+  for (const [key, original] of Object.entries(promptsOriginal)) {
+    const ta = document.getElementById(`prompt-ta-${key}`);
+    if (ta) ta.value = original;
+    promptsDirty[key] = false;
+    const dirtyBadge = document.getElementById(`dirty-${key}`);
+    if (dirtyBadge) dirtyBadge.classList.remove('visible');
+    const charsEl = document.getElementById(`chars-${key}`);
+    if (charsEl) charsEl.textContent = `${original.length.toLocaleString()} characters · ${original.split('\n').length} lines`;
+  }
+  updateSaveButton();
+  saveStatus.className = 'save-status';
+  saveStatus.textContent = '';
+  toast('Changes reset', 'info');
+});
+
+btnSavePrompts.addEventListener('click', async () => {
+  const payload = {};
+  for (const key of Object.keys(promptsOriginal)) {
+    const ta = document.getElementById(`prompt-ta-${key}`);
+    if (ta) payload[key] = ta.value;
+  }
+
+  btnSavePrompts.disabled = true;
+  btnSavePrompts.innerHTML = '<span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle;"></span> Saving…';
+  saveStatus.className = 'save-status';
+  saveStatus.textContent = '';
+
+  try {
+    const res = await fetch(`${API}/prompts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Save failed');
+
+    // Update originals
+    for (const key of Object.keys(payload)) {
+      promptsOriginal[key] = payload[key];
+      promptsDirty[key] = false;
+      const dirtyBadge = document.getElementById(`dirty-${key}`);
+      if (dirtyBadge) dirtyBadge.classList.remove('visible');
+    }
+
+    saveStatus.className = 'save-status saved';
+    saveStatus.textContent = '✓ Saved successfully';
+    toast(data.message, 'success');
+    setTimeout(() => { saveStatus.textContent = ''; saveStatus.className = 'save-status'; }, 4000);
+  } catch (e) {
+    saveStatus.className = 'save-status error';
+    saveStatus.textContent = `✗ ${e.message}`;
+    toast(e.message, 'error');
+  } finally {
+    btnSavePrompts.innerHTML = '<span>💾</span> Save Prompts';
+    updateSaveButton();
+  }
+});
 </script>
 </body>
 </html>

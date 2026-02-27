@@ -320,6 +320,45 @@ async def batch_status_stream(batch_id: str):
     )
 
 
+# ── Prompt management ─────────────────────────────────────────────────────────
+PROMPTS_DIR = Path("prompts")
+
+PROMPT_FILES = {
+    "dr_system_prompt": PROMPTS_DIR / "dr_system_prompt.txt",
+}
+
+
+@app.get("/prompts")
+async def get_prompts():
+    """Return all editable prompt files as {key: content}."""
+    result = {}
+    for key, path in PROMPT_FILES.items():
+        try:
+            result[key] = path.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            result[key] = ""
+    return result
+
+
+@app.post("/prompts")
+async def save_prompts(payload: Dict[str, str]):
+    """
+    Persist updated prompt content to disk.
+    Body: {key: new_content, ...}
+    Only keys listed in PROMPT_FILES are accepted.
+    """
+    saved = []
+    for key, content in payload.items():
+        if key not in PROMPT_FILES:
+            raise HTTPException(400, f"Unknown prompt key: '{key}'")
+        path = PROMPT_FILES[key]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+        log.info("Prompt '%s' updated (%d chars)", key, len(content))
+        saved.append(key)
+    return {"saved": saved, "message": f"Saved {len(saved)} prompt(s) successfully."}
+
+
 # ── Serve frontend ─────────────────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
