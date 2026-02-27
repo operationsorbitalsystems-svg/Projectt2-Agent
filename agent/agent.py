@@ -29,8 +29,13 @@ from botocore.exceptions import ClientError
 from langfuse import get_client
 
 from config import EXPENSES_TREE, MODEL_ID, bedrock_client
-from memory import initialize_memory, is_done
-from tools import execute_tool
+from .memory import initialize_memory, is_done
+from .tools import execute_tool
+
+
+BASE_PATH = "/home/soham/Documents/orbtl/Hypro-2/output"
+
+JSON_NAME = "45.json"
 
 # ── Safety cap ────────────────────────────────────────────────────────────────
 MAX_TURNS = 40  # max LLM round-trips per invoice
@@ -89,8 +94,22 @@ get_unexplored_paths — See everything still left to try. Use when unsure what'
   Input:  {{}}
 
 select_leaf — YOUR FINAL ANSWER. Only call when certain.
-  Input:  {{"path": ["Expenses", "parent folder"], "leaf_name": "Exact Leaf Name"}}
-  path is the PARENT folder, NOT including the leaf name.
+  Input:  {{"path": ["Expenses", "...", "...", "direct parent folder"], "leaf_name": "Exact Leaf Name"}}
+  
+  CRITICAL: `path` must be the COMPLETE path from "Expenses" down to the 
+  IMMEDIATE parent folder of the leaf. Every intermediate folder must be 
+  included. The leaf's direct parent is the last element in the path.
+  
+  Example — to select "Freight Outward ? General" which lives under:
+  Expenses → Indirect Expenses → Other Indirect Expenses → 
+    Selling and Distribution Expenses → Distribution Expenses
+  
+  Correct call:
+  {{
+    "path": ["Expenses", "Indirect Expenses", "Other Indirect Expenses", 
+             "Selling and Distribution Expenses", "Distribution Expenses"],
+    "leaf_name": "Freight Outward ? General"
+  }}
 
 ━━━ NODE STATES ━━━
   UNEXPLORED  → Seen but not entered. Should explore.
@@ -174,7 +193,7 @@ def run_agent(
 
     with langfuse.start_as_current_observation(
         as_type="span",
-        name="invoice-classification",
+        name=f"invoice-classification-{JSON_NAME}",
         input={"invoice_description": invoice_description, "vendor_name": vendor_name},
     ) as root_span:
 
@@ -231,11 +250,20 @@ def run_agent(
                 usage = response.get("usage", {})
                 gen_span.update(
                     output=model_text,
-                    usage={
+                    usage_details={
                         "input":  usage.get("inputTokens", 0),
                         "output": usage.get("outputTokens", 0),
                     },
                 )
+                
+        #                 output_message = response["output"]["message"]
+
+        # # ── Extract token usage from Bedrock response ──────────────────────
+        # usage = response.get("usage", {})
+        # input_tokens  = usage.get("inputTokens", 0)
+        # output_tokens = usage.get("outputTokens", 0)
+        # total_input_tokens  += input_tokens
+        # total_output_tokens += output_tokens
 
             print(f"\n[Turn {turn}] Model:\n{model_text[:500]}")
 
@@ -359,46 +387,4 @@ def classify_batch(
     return results
 
 
-BASE_PATH = "/home/soham/Documents/orbtl/Hypro-2/output"
 
-JSON_NAME = "57.json"
-
-
-from pathlib import Path
-
-# ── CLI for quick testing ─────────────────────────────────────────────────────
-if __name__ == "__main__":
-    
-    json_path = BASE_PATH + "/" + JSON_NAME
-    
-    resolved = Path(json_path).resolve()
-    if not resolved.exists():
-        raise FileNotFoundError(f"COA JSON not found at: {resolved}")
-
-    with open(resolved) as f:
-        raw = json.load(f)
-        
-    line_items_array = raw["line_items"]
-    
-    total_ledger_narration = ""
-    
-    for line in line_items_array:
-        total_ledger_narration += line["description"] + "\n"
-        
-    
-    
-    TEST_INVOICES = [
-        # "16/05/2025 Local travel at site - Hotel to Site To and fro - AMC/SAS Site Visit",
-        total_ledger_narration
-    ]
-
-    print("COA Classification Agent — Test Run")
-    print("=" * 50)
-    for desc in TEST_INVOICES:
-        print(f"\nInvoice : {desc}")
-        try:
-            result = run_agent(desc)
-            print(f"→ Ledger : {result}")
-        except Exception as e:
-            print(f"→ ERROR  : {e}")
-    print("\nDone.")

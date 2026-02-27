@@ -16,7 +16,7 @@ Tools:
 
 from typing import Any, Dict, List, Optional
 
-from memory import (
+from .memory import (
     AgentMemory,
     DISCARDED,
     EXHAUSTED,
@@ -28,7 +28,7 @@ from memory import (
     log_action,
     set_state,
 )
-from tree_utils import (
+from .tree_utils import (
     count_leaves,
     describe_children,
     extract_leaf_nodes,

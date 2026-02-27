@@ -21,9 +21,24 @@ from langfuse import get_client, Langfuse
 # ── Load .env ─────────────────────────────────────────────────────────────────
 load_dotenv()
 
+
+AWS_REGION=os.getenv("AWS_DEFAULT_REGION","ap-south-1")
+AWS_ACCESS_KEY_ID     = os.getenv("AWS_ACCESS_KEY", "")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRETE_KEY", "")
+MODEL_ID=os.getenv("BEDROCK_MODEL_ID","google.gemma-3-12b-it")
+
+
+# ── Logging / CloudWatch ──────────────────────────────────────────────────────
+ENVIRONMENT            = os.getenv("ENVIRONMENT", "dev")
+SERVICE_NAME           = os.getenv("SERVICE_NAME", "dr-agent")
+LOG_CLOUDWATCH_ENABLED = os.getenv("LOG_CLOUDWATCH_ENABLED", "false").lower() == "true"
+LOG_FILE_ENABLED       = os.getenv("LOG_FILE_ENABLED", "true").lower() == "true"
+CW_LOG_GROUP           = os.getenv("CW_LOG_GROUP", "/dr-agent/app")
+
+
+
 # ── Constants from env ────────────────────────────────────────────────────────
 AWS_REGION    = os.getenv("AWS_REGION", "ap-south-1")
-MODEL_ID      = os.getenv("BEDROCK_MODEL_ID", "amazon.nova-pro-v1:0")
 COA_JSON_PATH = os.getenv("COA_JSON_PATH", "./COA_parsed.json")
 
 # ── AWS Bedrock client (shared, thread-safe for reads) ────────────────────────
@@ -76,3 +91,4 @@ def _load_expenses_tree(path: str) -> Dict[str, Any]:
 
 # Loaded once at import time — shared read-only across all threads
 EXPENSES_TREE: Dict[str, Any] = _load_expenses_tree(COA_JSON_PATH)
+
