@@ -61,15 +61,17 @@ def _load_expenses_tree(path: str) -> Dict[str, Any]:
 
     hierarchy: Dict[str, Any] = raw.get("hierarchy", {})
 
-    # Case-insensitive match for "Expenses" top-level key
-    pattern = re.compile(r"(?i)^\s*expenses\s*$")
-    for key, value in hierarchy.items():
-        if pattern.match(key):
-            if not isinstance(value, dict) or not value:
-                raise ValueError(f"Expenses key '{key}' is empty or not a dict.")
-            return value
+    # # Case-insensitive match for "Expenses" top-level key
+    # pattern = re.compile(r"(?i)^\s*expenses\s*$")
+    # for key, value in hierarchy.items():
+    #     if pattern.match(key):
+    #         if not isinstance(value, dict) or not value:
+    #             raise ValueError(f"Expenses key '{key}' is empty or not a dict.")
+    #         return value
 
-    raise KeyError("No 'Expenses' key found in COA hierarchy.")
+    return hierarchy
+
+    # raise KeyError("No 'Expenses' key found in COA hierarchy.")
 
 
 # Loaded once at import time — shared read-only across all threads

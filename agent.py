@@ -7,76 +7,107 @@ Key functions:
   run_agent(invoice_description, vendor_name)  → selected ledger name (str)
   classify_batch(invoices)                      → dict of id → ledger name
 
-Each run:
-  - Creates a fresh AgentMemory
-  - Opens a Langfuse v3 trace (root span) for the invoice
-  - Runs the Bedrock converse() agentic loop
-  - Every LLM call → nested "generation" span
-  - Every tool call → nested "span"
-  - Terminates when select_leaf is called or MAX_TURNS is exceeded
+NOTE ON GEMMA TOOL CALLING:
+  Gemma 3 on Bedrock does not use Bedrock's native toolUse/toolResult protocol.
+  It outputs tool calls as plain JSON inside ```json ... ``` blocks in its text.
+  We use a ReAct-style text parsing loop instead of relying on stop_reason="tool_use".
+
+  Each turn we:
+    1. Call bedrock converse() (no toolConfig — Gemma ignores it anyway)
+    2. Extract the full text response
+    3. Parse any ```json { "tool": ..., "input": ... } ``` blocks
+    4. Execute them, format results as text, inject back as next user message
+    5. Repeat until select_leaf is called or MAX_TURNS exceeded
 """
 
 import json
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from botocore.exceptions import ClientError
 from langfuse import get_client
 
 from config import EXPENSES_TREE, MODEL_ID, bedrock_client
-from memory import AgentMemory, initialize_memory, is_done
-from tools import TOOL_CONFIG, execute_tool
+from memory import initialize_memory, is_done
+from tools import execute_tool
 
 # ── Safety cap ────────────────────────────────────────────────────────────────
-MAX_TURNS = 30  # max Bedrock converse() calls per invoice
+MAX_TURNS = 40  # max LLM round-trips per invoice
+
+# ── Regex to extract JSON tool calls from model text output ───────────────────
+# Matches: ```json ... ```,  ``` ... ```, or ```tool_code ... ``` blocks
+_TOOL_CALL_RE = re.compile(
+    r"```(?:json|tool_code)?\s*(\{.*?\})\s*```",
+    re.DOTALL | re.IGNORECASE,
+)
 
 # ── System prompt ─────────────────────────────────────────────────────────────
 SYSTEM_PROMPT_TEMPLATE = """\
-You are a Chart of Accounts (COA) classification agent. Your ONLY job is to read \
-an invoice description and navigate the Expenses ledger tree to find the single \
-most appropriate leaf node (ledger account) to assign the invoice to.
+You are a Chart of Accounts (COA) navigation agent. Your job is to classify an \
+invoice by finding the correct leaf node (ledger account) in the Expenses tree.
 
-Invoice description: {invoice_description}
-Vendor (if known): {vendor_name}
+Invoice: {invoice_description}
+Vendor: {vendor_name}
 
-━━━ TREE STRUCTURE ━━━
-The tree is a hierarchy. Nodes are either:
-  - FOLDER  → contains more nodes inside (type: "folder")
-  - LEAF    → a final ledger account with no children (type: "leaf")
-Your answer must always be a LEAF node.
+━━━ HOW THE TREE WORKS ━━━
+The tree is a hierarchy rooted at ["Expenses"]. Every node is either:
+  FOLDER — has children inside it (type: "folder")
+  LEAF   — a final ledger account, no children (type: "leaf")
+You must select a LEAF as your final answer.
 
-━━━ YOUR TOOLS ━━━
-  get_children(path)           → See immediate children of a node + their states
-  navigate_to(path)            → Move into or back to any seen path
-  update_node_states(updates)  → Mark nodes DISCARDED (skip by name) or EXHAUSTED (explored, nothing)
-  get_leaf_nodes(path)         → Get all leaves under a path — use when you're confident of the subtree
-  get_unexplored_paths()       → See what's left if you feel stuck or lost
-  select_leaf(path, leaf_name) → Your final answer — only call when certain
+━━━ HOW TO CALL TOOLS ━━━
+Output EXACTLY ONE tool call per response, as a JSON block like this:
+
+```json
+{{"tool": "get_children", "input": {{"path": ["Expenses"]}}}}
+```
+
+Wait for the tool result before calling another tool.
+Do NOT call multiple tools in one response.
+Do NOT add any text after the JSON block when making a tool call.
+
+━━━ AVAILABLE TOOLS ━━━
+
+get_children — See the immediate children of any node you are at.
+  Input:  {{"path": ["Expenses", "some folder"]}}
+  Output: list of children with name, type (leaf/folder), state, leaf_count
+
+navigate_to — Move into a node OR backtrack to a parent/sibling you have seen before.
+  Input:  {{"path": ["Expenses", "some folder"]}}
+  Cannot navigate to EXHAUSTED or DISCARDED nodes.
+
+update_node_states — Mark nodes as DISCARDED (skip by name) or EXHAUSTED (explored, empty).
+  Input:  {{"updates": [{{"path": ["Expenses", "X"], "state": "DISCARDED"}}, ...]}}
+  Discard irrelevant branches immediately to save turns.
+
+get_leaf_nodes — Get ALL leaf names under a path in one call.
+  Input:  {{"path": ["Expenses", "some folder"]}}
+  Use this once you are confident you are in the right subtree.
+
+get_unexplored_paths — See everything still left to try. Use when unsure what's next.
+  Input:  {{}}
+
+select_leaf — YOUR FINAL ANSWER. Only call when certain.
+  Input:  {{"path": ["Expenses", "parent folder"], "leaf_name": "Exact Leaf Name"}}
+  path is the PARENT folder, NOT including the leaf name.
 
 ━━━ NODE STATES ━━━
-  UNEXPLORED  → Not yet visited. You should explore these.
-  IN_PROGRESS → Currently being explored (where you are now).
-  EXHAUSTED   → Explored fully, nothing relevant found. Do NOT re-enter.
-  DISCARDED   → Rejected by name — clearly irrelevant. Do NOT enter.
-  SELECTED    → Final answer (only one leaf).
-
-━━━ STRICT RULES ━━━
-1. Always call get_children before entering any new node for the first time.
-2. When you are confident you are in the right subtree, call get_leaf_nodes — \
-   if there are ≤12 leaves, pick directly and call select_leaf.
-3. When you realize you went the wrong way, call navigate_to with the correct \
-   backtrack path — do NOT try to re-enter EXHAUSTED nodes.
-4. Discard obviously irrelevant nodes immediately using update_node_states with \
-   state=DISCARDED, so you don't waste turns on them.
-5. If you are unsure what remains to explore, call get_unexplored_paths first.
-6. select_leaf is your only terminal action — call it exactly once, when certain.
-7. Never enter a node marked EXHAUSTED or DISCARDED.
+  UNEXPLORED  → Seen but not entered. Should explore.
+  IN_PROGRESS → Currently being explored.
+  EXHAUSTED   → Entered, nothing suitable found. Do NOT re-enter.
+  DISCARDED   → Skipped by name as irrelevant. Do NOT enter.
 
 ━━━ STRATEGY ━━━
-Start at ["Expenses"]. Call get_children(["Expenses"]) to see the top-level options. \
-Discard clearly irrelevant branches immediately. Enter the most promising branch \
-and repeat. When you reach a small enough set of leaves (≤12), use get_leaf_nodes \
-and pick the best match.
+1. Call get_children on ["Expenses"] to see the top-level options.
+2. Immediately DISCARD obviously irrelevant branches (e.g. Depreciation, Tax Expenses for a travel invoice).
+3. Navigate into the most relevant branch.
+4. Once you believe you are in the right area, call get_leaf_nodes.
+5. If there are ≤15 leaves, pick the best one and call select_leaf.
+6. If you went the wrong way, mark it EXHAUSTED, navigate_to a sibling or parent, and try again.
+7. If lost, call get_unexplored_paths to see what is left.
+
+BEGIN: Call get_children with path ["Expenses"] now.
 """
 
 
@@ -84,6 +115,46 @@ def _build_system_prompt(invoice_description: str, vendor_name: Optional[str]) -
     return SYSTEM_PROMPT_TEMPLATE.format(
         invoice_description=invoice_description,
         vendor_name=vendor_name or "Unknown",
+    )
+
+
+# ── Tool call parser ──────────────────────────────────────────────────────────
+
+def _parse_tool_calls(text: str) -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Extract all tool calls from model text output.
+
+    Expected format:
+        ```json
+        {"tool": "get_children", "input": {"path": ["Expenses"]}}
+        ```
+
+    Returns list of (tool_name, tool_input) tuples.
+    Returns [] if no valid tool calls found.
+    """
+    calls = []
+    for match in _TOOL_CALL_RE.finditer(text):
+        raw = match.group(1).strip()
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+
+        tool_name  = parsed.get("tool", "").strip()
+        tool_input = parsed.get("input", {})
+
+        if tool_name and isinstance(tool_input, dict):
+            calls.append((tool_name, tool_input))
+
+    return calls
+
+
+def _format_tool_result(tool_name: str, result: Dict[str, Any]) -> str:
+    """Format a tool result as clean text to inject back into the conversation."""
+    return (
+        f"Tool result for `{tool_name}`:\n"
+        f"```json\n{json.dumps(result, indent=2)}\n```\n"
+        f"Now decide your next action based on this result."
     )
 
 
@@ -99,44 +170,39 @@ def run_agent(
     """
     langfuse = get_client()
     memory   = initialize_memory(EXPENSES_TREE, invoice_description, vendor_name)
+    system_prompt = _build_system_prompt(invoice_description, vendor_name)
 
     with langfuse.start_as_current_observation(
         as_type="span",
         name="invoice-classification",
-        input={
-            "invoice_description": invoice_description,
-            "vendor_name": vendor_name,
-        },
+        input={"invoice_description": invoice_description, "vendor_name": vendor_name},
     ) as root_span:
 
         root_span.update_trace(
             input={"invoice": invoice_description, "vendor": vendor_name},
-            metadata={"max_turns": MAX_TURNS},
+            metadata={"max_turns": MAX_TURNS, "model": MODEL_ID},
             tags=["coa-agent"],
         )
 
-        messages = [
+        # Conversation history — plain text turns, no toolConfig
+        messages: List[Dict[str, Any]] = [
             {
                 "role": "user",
-                "content": [
-                    {
-                        "text": (
-                            f"Please classify this invoice:\n\n"
-                            f"{invoice_description}"
-                            + (f"\n\nVendor: {vendor_name}" if vendor_name else "")
-                        )
-                    }
-                ],
+                "content": [{"text": (
+                    f"Classify this invoice and find the correct ledger account.\n\n"
+                    f"Invoice: {invoice_description}"
+                    + (f"\nVendor: {vendor_name}" if vendor_name else "")
+                    + "\n\nStart by calling get_children on [\"Expenses\"] now."
+                )}],
             }
         ]
 
-        system_prompt = _build_system_prompt(invoice_description, vendor_name)
         turn = 0
 
         while turn < MAX_TURNS:
             turn += 1
 
-            # ── LLM call ──────────────────────────────────────────────────────
+            # ── LLM call (no toolConfig — Gemma uses text-based tool calls) ──
             with langfuse.start_as_current_observation(
                 as_type="generation",
                 name=f"bedrock-turn-{turn}",
@@ -148,98 +214,94 @@ def run_agent(
                         modelId=MODEL_ID,
                         system=[{"text": system_prompt}],
                         messages=messages,
-                        toolConfig=TOOL_CONFIG,
                         inferenceConfig={"maxTokens": 1024, "temperature": 0.0},
                     )
                 except ClientError as e:
                     raise RuntimeError(f"Bedrock API error on turn {turn}: {e}") from e
 
                 output_message = response["output"]["message"]
-                stop_reason    = response["stopReason"]
 
-                # Log token usage if available
-                usage = response.get("usage", {})
-                if usage:
-                    gen_span.update(
-                        usage={
-                            "input":  usage.get("inputTokens", 0),
-                            "output": usage.get("outputTokens", 0),
-                        },
-                        output=output_message,
-                    )
-
-            # Add assistant turn to history
-            messages.append(output_message)
-
-            # ── Tool use ──────────────────────────────────────────────────────
-            if stop_reason == "tool_use":
-                tool_results = []
-
-                for block in output_message.get("content", []):
-                    # Bedrock wraps tool calls in {"toolUse": {...}} blocks
-                    tool_block = block.get("toolUse")
-                    if tool_block is None:
-                        continue
-
-                    tool_use_id = tool_block["toolUseId"]
-                    tool_name   = tool_block["name"]
-                    tool_input  = tool_block["input"]
-
-                    # ── Tool span ─────────────────────────────────────────────
-                    with langfuse.start_as_current_observation(
-                        as_type="span",
-                        name=f"tool:{tool_name}",
-                        input={"tool": tool_name, "input": tool_input},
-                    ) as tool_span:
-                        result = execute_tool(tool_name, tool_input, memory, EXPENSES_TREE)
-                        tool_span.update(output=result)
-
-                    tool_results.append({
-                        "toolResult": {
-                            "toolUseId": tool_use_id,
-                            "content":   [{"text": json.dumps(result)}],
-                            "status":    "error" if "error" in result else "success",
-                        }
-                    })
-
-                    # Check for early termination after select_leaf
-                    if tool_name == "select_leaf" and is_done(memory):
-                        root_span.update_trace(
-                            output={"selected_leaf": memory.selected_leaf},
-                            metadata={
-                                "turns": turn,
-                                "full_path": memory.selected_path,
-                                "log_entries": len(memory.log),
-                            },
-                        )
-                        return memory.selected_leaf  # type: ignore[return-value]
-
-                # Feed tool results back to the model
-                messages.append({"role": "user", "content": tool_results})
-
-            # ── End turn (model done talking) ─────────────────────────────────
-            else:
-                # Model finished without calling select_leaf — extract any text
-                final_text = " ".join(
+                # Extract full text from response
+                model_text = " ".join(
                     block.get("text", "")
                     for block in output_message.get("content", [])
                     if "text" in block
                 ).strip()
 
-                # If memory has a selection recorded (e.g. tool call happened last turn)
+                usage = response.get("usage", {})
+                gen_span.update(
+                    output=model_text,
+                    usage={
+                        "input":  usage.get("inputTokens", 0),
+                        "output": usage.get("outputTokens", 0),
+                    },
+                )
+
+            print(f"\n[Turn {turn}] Model:\n{model_text[:500]}")
+
+            # Add assistant turn to history
+            messages.append({
+                "role":    "assistant",
+                "content": [{"text": model_text}],
+            })
+
+            # ── Parse tool calls from text ─────────────────────────────────────
+            tool_calls = _parse_tool_calls(model_text)
+
+            if not tool_calls:
+                # No tool call found — check if we're done or truly stuck
                 if is_done(memory):
                     root_span.update_trace(output={"selected_leaf": memory.selected_leaf})
                     return memory.selected_leaf  # type: ignore[return-value]
 
-                # Model ended without a selection — this is unexpected
-                root_span.update_trace(
-                    output={"error": "Model ended without calling select_leaf", "text": final_text},
-                    level="WARNING",
-                )
-                raise RuntimeError(
-                    f"Agent ended without selecting a leaf after {turn} turns. "
-                    f"Last response: {final_text[:300]}"
-                )
+                # Prod the model to keep going
+                messages.append({
+                    "role": "user",
+                    "content": [{"text": (
+                        "No tool call detected in your response. "
+                        "You must call a tool now. Output a single JSON block like:\n"
+                        "```json\n"
+                        "{\"tool\": \"get_children\", \"input\": {\"path\": [\"Expenses\"]}}\n"
+                        "```"
+                    )}],
+                })
+                continue
+
+            # ── Execute tool calls (Gemma should only send one at a time) ──────
+            tool_result_texts: List[str] = []
+
+            for tool_name, tool_input in tool_calls:
+                print(f"  → Tool call: {tool_name}({json.dumps(tool_input)})")
+
+                with langfuse.start_as_current_observation(
+                    as_type="span",
+                    name=f"tool:{tool_name}",
+                    input={"tool": tool_name, "input": tool_input},
+                ) as tool_span:
+                    result = execute_tool(tool_name, tool_input, memory, EXPENSES_TREE)
+                    tool_span.update(output=result)
+
+                print(f"  ← Result: {json.dumps(result)[:200]}")
+                tool_result_texts.append(_format_tool_result(tool_name, result))
+
+                # Terminal — select_leaf was called successfully
+                if tool_name == "select_leaf" and is_done(memory):
+                    root_span.update_trace(
+                        output={"selected_leaf": memory.selected_leaf},
+                        metadata={
+                            "turns": turn,
+                            "full_path": memory.selected_path,
+                            "log_entries": len(memory.log),
+                        },
+                    )
+                    print(f"\n✅ Selected: {memory.selected_leaf}")
+                    return memory.selected_leaf  # type: ignore[return-value]
+
+            # Inject all tool results back as next user message
+            messages.append({
+                "role": "user",
+                "content": [{"text": "\n\n".join(tool_result_texts)}],
+            })
 
         # MAX_TURNS exceeded
         root_span.update_trace(
@@ -248,7 +310,7 @@ def run_agent(
         )
         raise RuntimeError(
             f"Agent exceeded MAX_TURNS ({MAX_TURNS}) without calling select_leaf. "
-            f"Exploration log has {len(memory.log)} entries."
+            f"Exploration log: {len(memory.log)} entries."
         )
 
 
@@ -300,9 +362,7 @@ def classify_batch(
 # ── CLI for quick testing ─────────────────────────────────────────────────────
 if __name__ == "__main__":
     TEST_INVOICES = [
-        "16/05/2025 Local travel at site - Hotel to Site To and fro - AMC/SAS Site Visit",
-        "Monthly internet bill - office connection renewal",
-        "Salary advance for Dinesh Marne - May 2025",
+        # "16/05/2025 Local travel at site - Hotel to Site To and fro - AMC/SAS Site Visit",
     ]
 
     print("COA Classification Agent — Test Run")
