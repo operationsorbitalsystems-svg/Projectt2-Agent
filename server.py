@@ -234,8 +234,8 @@ async def process_invoices(
     if coa_id not in _coa_store:
         raise HTTPException(404, f"coa_id '{coa_id}' not found. Upload COA first.")
 
-    if len(invoices) > 5:
-        raise HTTPException(400, "Maximum 5 invoices per batch.")
+    if len(invoices) > 50:
+        raise HTTPException(400, "Maximum 50 invoices per batch.")
 
     for f in invoices:
         if not f.filename.lower().endswith(".pdf"):
