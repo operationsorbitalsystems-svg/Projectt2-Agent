@@ -783,7 +783,7 @@
         <input type="file" id="input-invoices" accept=".pdf" multiple />
         <div class="drop-icon">🧾</div>
         <div class="drop-text-main">Drop invoice PDFs</div>
-        <div class="drop-text-sub">Up to 5 files · PDF only</div>
+        <div class="drop-text-sub">Up to 50 files · PDF only</div>
         <div class="file-list" id="invoice-file-list"></div>
       </div>
     </div>
@@ -946,7 +946,7 @@ dzCoa.addEventListener('drop', e => {
 function handleInvoiceFiles(files) {
   const pdfs = [...files].filter(f => f.name.toLowerCase().endsWith('.pdf'));
   if (!pdfs.length) { toast('Please select PDF files', 'error'); return; }
-  if (pdfs.length > 5) { toast('Maximum 5 invoices', 'error'); invoiceFiles = pdfs.slice(0, 5); }
+  if (pdfs.length > 50) { toast('Maximum 50 invoices', 'error'); invoiceFiles = pdfs.slice(0, 50); }
   else invoiceFiles = pdfs;
 
   invoiceFileList.innerHTML = invoiceFiles.map(f => fileChip(f.name, f.size)).join('');
