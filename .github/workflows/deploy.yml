@@ -39,6 +39,7 @@ jobs:
           REDIS_SSL_VERIFY: ${{ secrets.REDIS_SSL_VERIFY }}
           # ── COA ───────────────────────────────────────────────────────────
           # COA_JSON_PATH: ${{ secrets.COA_JSON_PATH }}
+        
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
